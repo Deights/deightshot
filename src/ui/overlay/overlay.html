@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; img-src blob: data:; style-src 'unsafe-inline' 'self'; script-src 'self';">
+  <title>shot88 overlay</title>
+  <link rel="stylesheet" href="overlay.css">
+</head>
+<body>
+  <!-- Donmuş kare. Gelene kadar gizli: altında gerçek canlı ekran duruyor. -->
+  <img id="kare" alt="">
+
+  <!-- Çizimler (kalem, ok, kutu, mozaik...) — kare ile seçim arasında -->
+  <canvas id="cizim"></canvas>
+
+  <!-- OCR metin katmanı: kelime kutuları ve metin seçimi -->
+  <canvas id="metinKatman"></canvas>
+
+  <!-- Seçim yokken tüm ekranı karartan katman -->
+  <div id="perde"></div>
+
+  <!-- Nişangâh (seçim başlamadan önce) -->
+  <div id="nisanY" class="nisan"></div>
+  <div id="nisanX" class="nisan"></div>
+
+  <!-- Seçim dikdörtgeni: box-shadow ile etrafı karartır, içi net kalır -->
+  <div id="secim" hidden>
+    <span class="tut" data-yon="nw"></span>
+    <span class="tut" data-yon="n"></span>
+    <span class="tut" data-yon="ne"></span>
+    <span class="tut" data-yon="e"></span>
+    <span class="tut" data-yon="se"></span>
+    <span class="tut" data-yon="s"></span>
+    <span class="tut" data-yon="sw"></span>
+    <span class="tut" data-yon="w"></span>
+  </div>
+
+  <div id="olcu" hidden></div>
+
+  <!-- Metin aracı için satır içi giriş -->
+  <div id="metinGiris" contenteditable="true" spellcheck="false" hidden></div>
+
+  <!-- ÇİZİM ARAÇLARI — seçimin sağında, dikey -->
+  <div id="araclar" hidden>
+    <button class="arac secili" data-arac="yok"     title="Seç / taşı (V)"        aria-label="Seç"></button>
+    <span class="cubuk-ayrac"></span>
+    <button class="arac" data-arac="kalem"          title="Kalem (P)"             aria-label="Kalem"></button>
+    <button class="arac" data-arac="ok"             title="Ok (A)"                aria-label="Ok"></button>
+    <button class="arac" data-arac="cizgi"          title="Çizgi (L)"             aria-label="Çizgi"></button>
+    <button class="arac" data-arac="kutu"           title="Kutu (R)"              aria-label="Kutu"></button>
+    <button class="arac" data-arac="daire"          title="Daire (O)"             aria-label="Daire"></button>
+    <button class="arac" data-arac="vurgu"          title="Vurgulayıcı (H)"       aria-label="Vurgulayıcı"></button>
+    <button class="arac" data-arac="metin"          title="Metin ekle (T)"        aria-label="Metin"></button>
+    <button class="arac vurgulu" data-arac="mozaik" title="Blur / mozaik (B)"     aria-label="Mozaik"></button>
+    <span class="cubuk-ayrac"></span>
+    <button class="arac" data-eylem="geri"          title="Geri al (Ctrl+Z)"      aria-label="Geri al"></button>
+  </div>
+
+  <!-- Renk ve kalınlık — bir araç seçilince çıkar -->
+  <div id="stil" hidden>
+    <div class="renkler">
+      <button class="renk secili" data-renk="#ff3b30" style="--r:#ff3b30" title="Kırmızı"></button>
+      <button class="renk" data-renk="#ffcc00" style="--r:#ffcc00" title="Sarı"></button>
+      <button class="renk" data-renk="#34c759" style="--r:#34c759" title="Yeşil"></button>
+      <button class="renk" data-renk="#0a84ff" style="--r:#0a84ff" title="Mavi"></button>
+      <button class="renk" data-renk="#ffffff" style="--r:#ffffff" title="Beyaz"></button>
+      <button class="renk" data-renk="#111111" style="--r:#111111" title="Siyah"></button>
+    </div>
+    <span class="cubuk-ayrac yatay"></span>
+    <div class="kalinliklar">
+      <button class="kal" data-kal="2" title="İnce"><i style="height:2px"></i></button>
+      <button class="kal secili" data-kal="4" title="Orta"><i style="height:4px"></i></button>
+      <button class="kal" data-kal="8" title="Kalın"><i style="height:8px"></i></button>
+    </div>
+  </div>
+
+  <!-- İŞLEMLER — seçimin altında, yatay -->
+  <div id="islemler" hidden>
+    <button class="islem birincil" data-eylem="kopyala" title="Panoya kopyala (Ctrl+C)">
+      <span class="ik"></span> Kopyala
+    </button>
+    <button class="islem" data-eylem="kaydet" title="Dosyaya kaydet (Ctrl+S)">
+      <span class="ik"></span> Kaydet
+    </button>
+    <button class="islem" data-eylem="metni-kopyala" title="Seçimdeki metni kopyala — çift tıkla parça seç">
+      <span class="ik"></span> Metni kopyala
+    </button>
+    <span class="islem-ayrac"></span>
+    <button class="islem" data-eylem="cevir" title="Seçimdeki metni Türkçeye çevir">
+      <span class="ik"></span> Çevir
+    </button>
+    <button class="islem" data-eylem="acikla" title="Bu ne anlama geliyor — teknik terimleri açıklar">
+      <span class="ik"></span> Açıkla
+    </button>
+    <button class="islem sessiz" data-eylem="kapat" title="İptal (Esc)">
+      <span class="ik"></span>
+    </button>
+  </div>
+
+  <!-- Metin modu göstergesi -->
+  <div id="metinIpucu" hidden>
+    <span class="nokta"></span>
+    <b>Metin modu</b>
+    <span class="ayrac"></span>
+    <span id="metinSayi">—</span>
+    <span class="ayrac"></span>
+    <button id="dilDegistir" title="OCR dilini değiştir — yanlış okuduysa dene">
+      <span id="dilAd">—</span>
+    </button>
+    <span class="ayrac"></span>
+    <button class="ai-dugme" data-ai="cevir" title="Seçili metni Türkçeye çevir">Çevir</button>
+    <button class="ai-dugme" data-ai="acikla" title="Seçili metin ne anlama geliyor — teknik terimleri açıklar">Açıkla</button>
+    <span class="ayrac"></span>
+    <span><kbd>Ctrl</kbd><kbd>C</kbd> metni kopyala</span>
+    <span class="ayrac"></span>
+    <span><kbd>Esc</kbd> görsele dön</span>
+  </div>
+
+  <!-- Satır içi çeviri (altyazı) — her kutu kaynak satırın hizasına konur -->
+  <div id="ceviriKat" hidden></div>
+
+  <!-- Çeviri / açıklama sonuç paneli -->
+  <div id="aiPanel" hidden>
+    <div class="ai-baslik">
+      <span class="ai-tip" id="aiTip">Çeviri</span>
+      <span class="ai-bilgi" id="aiBilgi"></span>
+      <button class="ai-kapat" id="aiKapat" title="Kapat (Esc)"></button>
+    </div>
+    <div class="ai-govde" id="aiGovde"></div>
+    <div class="ai-alt">
+      <button class="ai-dugme birincil" id="aiKopyala">Sonucu kopyala</button>
+      <span class="ai-not">Model sadece ekrandaki metne bakar</span>
+    </div>
+  </div>
+
+  <div id="ipucu">
+    <span><b>Sürükle</b> seç</span>
+    <span class="ayrac"></span>
+    <span><kbd>Ctrl</kbd><kbd>C</kbd> kopyala</span>
+    <span class="ayrac"></span>
+    <span><kbd>Ctrl</kbd><kbd>S</kbd> kaydet</span>
+    <span class="ayrac"></span>
+    <span><kbd>Esc</kbd> iptal</span>
+  </div>
+
+  <script src="overlay.js"></script>
+</body>
+</html>

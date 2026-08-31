@@ -1,0 +1,8 @@
+{
+  "id": "metin-secme",
+  "name": "Metin Seçme (OCR)",
+  "description": "Seçim biter bitmez arka planda OCR çalıştırır; çift tıkla metin modu açılır, PDF gibi metin seçilip kopyalanır.",
+  "version": "0.1.0",
+  "main": "main.js",
+  "enabled": true
+}

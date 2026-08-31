@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>shot88 — Ayarlar</title>
+<link rel="stylesheet" href="ayarlar.css">
+</head>
+<body>
+
+<header>
+  <h1>Ayarlar</h1>
+  <p class="alt">Kısayol, OCR ve çeviri. Uzak motor sadece açıkça izin verirsen kullanılır.</p>
+</header>
+
+<main>
+
+
+  <!-- KISAYOL -->
+  <section class="kart">
+    <div class="kart-bas">
+      <span class="rozet mavi">Kısayol</span>
+      <h2>Ekran görüntüsü tuşu</h2>
+    </div>
+    <p class="aciklama">
+      Kısa bas: bölge seç · Basılı tut: tam ekran.
+      Tepsi ikonuna sol tıklamak da bölge seçimini açar.
+    </p>
+
+    <div class="satir">
+      <label>Tuş</label>
+      <button id="tusAta" type="button" class="tus-kutu">—</button>
+      <span class="durum" id="tusDurum"></span>
+    </div>
+    <p class="ipucu">
+      Sadece yazıda kullanılmayan tuşlar atanabilir (F1–F12, Ins, PrtScn,
+      Pause, ScrLk). Sebebi: tuş <b>yutuluyor</b>, yani odaktaki uygulamaya hiç
+      gitmiyor — harf atansaydı o harf sistem genelinde yazılamazdı.
+    </p>
+
+    <div class="satir">
+      <label for="basiliTut">Basılı tutma</label>
+      <select id="basiliTut">
+        <option value="600">600 ms</option>
+        <option value="700">700 ms — ölçülen en iyi</option>
+        <option value="1000">1000 ms</option>
+        <option value="2000">2000 ms</option>
+      </select>
+    </div>
+
+    <div class="satir">
+      <label for="tusuYut">Tuşu gizle</label>
+      <input type="checkbox" id="tusuYut" class="kutucuk">
+      <span class="ipucu" style="margin:0">
+        Açıkken tuş diğer uygulamalara gitmez (Ins editörde OVR açmaz)
+      </span>
+    </div>
+    <p class="durum" id="motorDurum"></p>
+  </section>
+
+  <!-- YEREL -->
+  <section class="kart">
+    <div class="kart-bas">
+      <span class="rozet yesil">Yerel</span>
+      <h2>Ollama — bu bilgisayarda</h2>
+    </div>
+    <p class="aciklama">
+      Hiçbir veri dışarı çıkmaz. GPU boşken saniyeler içinde çalışır.
+    </p>
+    <div class="satir">
+      <label for="model">Model</label>
+      <select id="model"><option>yükleniyor…</option></select>
+    </div>
+    <p class="durum" id="yerelDurum">…</p>
+  </section>
+
+  <!-- UZAK — ana anahtar -->
+  <section class="kart" id="uzakKart">
+    <div class="kart-bas">
+      <span class="rozet turuncu">Uzak</span>
+      <h2>İnternet üzerinden</h2>
+      <label class="anahtar">
+        <input type="checkbox" id="uzakAcik">
+        <span class="kaydirak"></span>
+      </label>
+    </div>
+
+    <div class="uyari-kutu">
+      <strong>Seçtiğin ekran metni bu bilgisayardan çıkar.</strong>
+      shot88 normalde hiçbir ağ isteği yapmaz. Bunu açarsan çeviri/açıklama
+      için seçtiğin metin ilgili servise gönderilir. Sonuç panelinde her
+      seferinde <em>“↗ dışarı gönderildi”</em> rozeti görürsün.
+    </div>
+
+    <div class="uzak-govde" id="uzakGovde">
+
+      <div class="satir">
+        <label for="neZaman">Ne zaman kullanılsın</label>
+        <select id="neZaman">
+          <option value="oyunda">Sadece yerel GPU doluyken (oyun açıkken)</option>
+          <option value="hep">Her zaman</option>
+        </select>
+      </div>
+      <p class="ipucu">
+        “Sadece GPU doluyken” önerilir: masaüstünde her şey yerelde kalır,
+        yalnızca oyun açıkken — yerel modelin kullanılamaz hale geldiği durumda —
+        dışarı çıkar.
+      </p>
+
+      <hr>
+
+      <!-- DeepL -->
+      <h3>DeepL <span class="etiket">çeviri</span></h3>
+      <p class="aciklama">
+        Ücretsiz katman ayda ~500.000 karakter. Bir ekran görüntüsü 200–500
+        karakter, yani ayda kabaca 1000–2500 çeviri. Deyimlerde yerel modelden
+        belirgin daha iyi. <b>Açıklama yapamaz</b> — o LLM işi.
+      </p>
+      <div class="satir">
+        <label for="deeplAnahtar">API anahtarı</label>
+        <input type="password" id="deeplAnahtar" placeholder="… ücretsiz anahtarlar :fx ile biter" spellcheck="false">
+        <button class="mini" id="deeplGoster" type="button" title="Göster/gizle">👁</button>
+      </div>
+      <div class="satir dugmeler">
+        <button id="deeplTest" type="button">Bağlantıyı sına</button>
+        <span class="durum" id="deeplDurum"></span>
+      </div>
+
+      <hr>
+
+      <!-- OpenAI uyumlu -->
+      <h3>LLM ucu <span class="etiket">açıklama + çeviri</span></h3>
+      <p class="aciklama">
+        OpenAI uyumlu <b>herhangi bir</b> adres. Tek sağlayıcıya bağlı
+        değiliz — ücretsiz katmanlar daralıp kapanıyor, biri giderse
+        diğerinin adresini yapıştırırsın.
+      </p>
+      <div class="satir">
+        <label for="apiUrl">Adres</label>
+        <input type="text" id="apiUrl" placeholder="https://api.groq.com/openai/v1" spellcheck="false">
+      </div>
+      <div class="satir">
+        <label for="apiAnahtar">Anahtar</label>
+        <input type="password" id="apiAnahtar" placeholder="gsk_… / sk-…" spellcheck="false">
+        <button class="mini" id="apiGoster" type="button" title="Göster/gizle">👁</button>
+      </div>
+      <div class="satir">
+        <label for="apiModel">Model</label>
+        <input type="text" id="apiModel" placeholder="sağlayıcının listesinden birebir kopyala" spellcheck="false">
+      </div>
+      <div class="satir dugmeler">
+        <button id="apiTest" type="button">Bağlantıyı sına</button>
+        <span class="durum" id="apiDurum"></span>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span class="durum" id="kayitDurum"></span>
+  <button class="birincil" id="kapat" type="button">Kapat</button>
+</footer>
+
+<script src="ayarlar.js"></script>
+</body>
+</html>

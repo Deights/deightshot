@@ -1,0 +1,45 @@
+# ── Bağımlılıklar ───────────────────────────────────────────────
+node_modules/
+
+# ── Derleme çıktıları ───────────────────────────────────────────
+# ⚠️ dist/ ve dist-native/ 2026-08-31'e kadar BURADA YOKTU.
+#    Ölçüldü: `git add .` 683 MB stage'liyordu ve içindeki iki dosya
+#    (215 MB + 128 MB) GitHub'ın 100 MB sınırını aştığı için push
+#    komple reddedilirdi. Kural eksikliği sessizce durur, patlamaz.
+bin/
+obj/
+dist/
+dist-native/
+*.pdb
+
+# ── Çalışma zamanı dökümleri ────────────────────────────────────
+# ⚠️ Yalnız `*.log` yazmak YETMİYORDU: `shot88.err` de aynı türde bir
+#    döküm ve içinde kullanıcının profil yolu 13 kez geçiyordu, ama
+#    uzantısı `.log` olmadığı için kurala takılmıyordu.
+#    Ders: dosyayı türüne göre ele al, uzantısına göre değil.
+*.log
+*.err
+
+# ── Görseller ───────────────────────────────────────────────────
+# spike testleri GERÇEK ekran kareleri üretiyor — asla repoya girmesin.
+cikti/
+*.png
+*.jpg
+*.jpeg
+# ...ama uygulamanın kendi tepsi ikonları gerekli: tray.js bunları
+#    çalışma anında diskten okuyor, eksikse tepsi ikonu yüklenmiyor.
+!assets/*.png
+
+# ── Kişisel çalışma günlüğü — yayınlanmaz ───────────────────────
+# Tek satır silinerek geri açılabilir.
+notlar/
+CLAUDE.md
+
+# ── Sırlar (şu an yok — önleyici) ───────────────────────────────
+.env
+.env.*
+
+# ── İşletim sistemi / editör artıkları ──────────────────────────
+Thumbs.db
+.DS_Store
+*.zip

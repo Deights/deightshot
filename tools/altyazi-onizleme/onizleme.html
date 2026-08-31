@@ -1,0 +1,155 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>altyazı önizleme</title>
+<!-- Gerçek overlay stilini kullan — kopya CSS'i doğrulamanın anlamı olmaz. -->
+<link rel="stylesheet" href="../../src/ui/overlay/overlay.css">
+<style>
+  /* Sahte "ekran görüntüsü" zemini. Gerçek masaüstünü YAKALAMIYORUZ:
+     daha önce test sırasında özel/kişisel içerik kazara çekilmişti. */
+  html, body { margin: 0; height: 100%; background: #0b0d12; overflow: hidden; }
+
+  .sahne {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(1100px 700px at 22% 18%, #1d2740 0%, #0b0d12 62%),
+      linear-gradient(160deg, #10141d 0%, #080a0e 100%);
+    font: 400 15px/1 'Segoe UI', system-ui, sans-serif;
+    color: #dfe4ee;
+  }
+
+  /* Örnek 1: oyun ayar menüsü — seyrek satırlar, altyazı alta sığar */
+  .menu { position: absolute; left: 60px; top: 54px; width: 430px; }
+  .menu .baslik { font-size: 12px; letter-spacing: 2.4px; color: #7d8ba6; margin-bottom: 18px; }
+  .menu .sat {
+    display: flex; justify-content: space-between;
+    padding: 11px 14px; margin-bottom: 26px;
+    background: rgba(255,255,255,0.035); border-radius: 6px;
+    border-left: 2px solid rgba(255,255,255,0.09);
+  }
+  .menu .sat .deger { color: #8fa3c4; }
+
+  /* Örnek 2: diyalog — sıkışık satırlar, alt kip çakışır, "üstüne" kipi şart */
+  .diyalog { position: absolute; left: 560px; top: 300px; width: 400px; }
+  .diyalog .baslik { font-size: 12px; letter-spacing: 2.4px; color: #7d8ba6; margin-bottom: 14px; }
+  .diyalog .sat { line-height: 1.32; margin-bottom: 3px; color: #eef1f7; }
+
+  /* Örnek 3: küçük punto HUD — altyazı punto tabanı burada sınanır */
+  .hud { position: absolute; left: 60px; top: 430px; font-size: 10px; color: #9fb0cc; }
+  .hud .sat { margin-bottom: 14px; letter-spacing: 0.4px; }
+
+  /* Örnek 4: büyük başlık — üst sınır (22px) burada sınanır */
+  .dev { position: absolute; left: 560px; top: 70px; }
+  .dev .sat { font-size: 34px; font-weight: 700; color: #fff; letter-spacing: -0.5px; }
+
+  .etiket {
+    position: absolute; left: 12px; bottom: 10px;
+    font: 600 11px/1 'Segoe UI', sans-serif;
+    color: #55617a; letter-spacing: 1px;
+  }
+</style>
+
+<div class="sahne">
+  <div class="menu">
+    <div class="baslik">GRAPHICS</div>
+    <!-- .kaynak doğrudan METNİN üstünde: gerçekte OCR kutuları harfleri sarıyor,
+         dolgulu satırın tamamını değil. Dolgulu div'i kaynak saymak puntoyu
+         şişiriyordu — önizlemenin gerçeği yansıtması şart. -->
+    <div class="sat"><span class="kaynak">Motion Blur</span><span class="deger">On</span></div>
+    <div class="sat"><span class="kaynak">Ambient Occlusion</span><span class="deger">SSAO</span></div>
+    <div class="sat"><span class="kaynak">Field of View</span><span class="deger">90</span></div>
+  </div>
+
+  <div class="dev">
+    <div class="sat"><span class="kaynak">MISSION FAILED</span></div>
+  </div>
+
+  <div class="diyalog">
+    <div class="baslik">DIALOGUE</div>
+    <div class="sat"><span class="kaynak">You should have known better than to trust him.</span></div>
+    <div class="sat"><span class="kaynak">The Arasaka deal was never going to work out.</span></div>
+    <div class="sat"><span class="kaynak">Get out of here before they find you.</span></div>
+  </div>
+
+  <div class="hud">
+    <div class="sat"><span class="kaynak">AMMO RESERVE LOW</span></div>
+    <div class="sat"><span class="kaynak">SHIELD REGENERATING</span></div>
+  </div>
+
+  <div class="etiket" id="kipEtiket"></div>
+</div>
+
+<div id="ceviriKat"></div>
+
+<script>
+  // Kaynak satırların çevirileri — sırayla eşleşiyor.
+  const CEVIRILER = [
+    'Hareket Bulanıklığı — Açık',
+    'Ortam Gölgelendirme — SSAO',
+    'Görüş Alanı — 90',
+    'GÖREV BAŞARISIZ',
+    'Ona güvenmemen gerektiğini bilmeliydin.',
+    'Arasaka anlaşması en baştan tutmayacaktı.',
+    'Seni bulmadan önce buradan çık.',
+    'CEPHANE AZALDI',
+    'KALKAN YENİLENİYOR',
+  ];
+
+  const kat = document.getElementById('ceviriKat');
+
+  // ⚠️ Yerleşim formülü overlay.js'teki cevKatCiz() ile AYNI olmalı.
+  // Burada amaç CSS'i ve puntolamayı gözle görmek; mantık değişirse ikisi de
+  // güncellenmeli. (Tek kaynağa indirmek için overlay.js'i modüle bölmek
+  // gerekirdi, o da preload bağımlılığını buraya taşırdı.)
+  const punto = (h) => Math.max(11, Math.min(26, Math.round(h * 0.85)));
+
+  function yogunMu(kutular) {
+    if (kutular.length < 2) return false;
+    let dar = 0, sayilan = 0;
+    for (let i = 0; i < kutular.length - 1; i++) {
+      const a = kutular[i], b = kutular[i + 1];
+      if (b.x > a.x + a.w || a.x > b.x + b.w) continue;
+      sayilan++;
+      if (b.y - (a.y + a.h) < punto(a.h) * 1.45) dar++;
+    }
+    return sayilan > 0 && dar / sayilan >= 0.5;
+  }
+
+  function ciz(ustune) {
+    kat.textContent = '';
+    document.getElementById('kipEtiket').textContent =
+      ustune ? 'KİP: kaynağın üstünde' : 'KİP: satırın altında';
+
+    document.querySelectorAll('.kaynak').forEach((el, i) => {
+      const r = el.getBoundingClientRect();
+      const d = document.createElement('div');
+      d.className = 'cev-satir' + (ustune ? ' ustu' : '');
+      d.textContent = CEVIRILER[i];
+      d.style.fontSize = punto(r.height) + 'px';
+      kat.appendChild(d);
+
+      if (ustune) {
+        d.style.width = Math.round(Math.max(d.offsetWidth, r.width + 4)) + 'px';
+        d.style.height = Math.round(r.height + 3) + 'px';
+      }
+
+      const g = d.offsetWidth, y = d.offsetHeight;
+      let x = r.left - 2;
+      let t = ustune ? r.top - 2 : r.bottom + 2;
+      if (x + g > innerWidth - 4) x = innerWidth - g - 4;
+      if (x < 4) x = 4;
+      if (!ustune && t + y > innerHeight - 4) t = r.top - y - 2;
+      if (t < 2) t = 2;
+      d.style.left = Math.round(x) + 'px';
+      d.style.top = Math.round(t) + 'px';
+      if (g > innerWidth * 0.6) d.classList.add('sikisik');
+    });
+  }
+
+  // Overlay ne yapıyorsa o: yoğunluğa bakıp kipi kendisi seçer.
+  window.ciz = ciz;
+  window.otomatikKip = () => yogunMu([...document.querySelectorAll('.kaynak')].map((e) => {
+    const r = e.getBoundingClientRect();
+    return { x: r.left, y: r.top, w: r.width, h: r.height };
+  }));
+  ciz(window.otomatikKip());
+</script>

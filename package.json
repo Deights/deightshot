@@ -1,0 +1,65 @@
+{
+  "name": "shot88",
+  "productName": "shot88",
+  "version": "0.2.1",
+  "description": "Ekran görüntüsü aracı: OCR ile metin seçme, mozaik/blur, basılı tut = tam ekran",
+  "main": "main.js",
+  "private": true,
+  "author": "88",
+  "scripts": {
+    "start": "electron .",
+    "native:build": "dotnet build native/Shot88.Native/Shot88.Native.csproj -c Release",
+    "native:publish": "dotnet publish native/Shot88.Native/Shot88.Native.csproj -c Release -r win-x64 --self-contained true -o dist-native",
+    "ikon": "node tools/ikon-uret.js",
+    "paket": "npm run native:publish && electron-builder --win --x64",
+    "paket:dizin": "npm run native:publish && electron-builder --win --x64 --dir"
+  },
+  "devDependencies": {
+    "electron": "^43.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "dependencies": {
+    "uiohook-napi": "^1.5.4"
+  },
+  "build": {
+    "appId": "com.shot88.app",
+    "productName": "shot88",
+    "copyright": "88",
+    "npmRebuild": false,
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "files": [
+      "main.js",
+      "src/**/*",
+      "modules/**/*",
+      "assets/**/*",
+      "!**/*.map"
+    ],
+    "extraResources": [
+      {
+        "from": "dist-native",
+        "to": "native",
+        "filter": ["**/*", "!*.pdb"]
+      }
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ],
+      "icon": "assets/shot88.ico",
+      "artifactName": "shot88-kurulum-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "shot88",
+      "installerLanguages": ["tr_TR"],
+      "language": "1055"
+    }
+  }
+}
