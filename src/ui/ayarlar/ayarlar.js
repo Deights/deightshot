@@ -23,7 +23,7 @@ function govdeGuncelle() {
 }
 
 async function cagir(komut, veri) {
-  const c = await window.shot88.modul('ceviri', komut, veri || {});
+  const c = await window.deightshot.modul('ceviri', komut, veri || {});
   if (!c.ok) throw new Error(c.error);
   return c.data;
 }
@@ -169,7 +169,7 @@ function dinlemeyiBitir() {
 
 async function kisayolYukle() {
   try {
-    const d = await window.shot88.kisayolDurum();
+    const d = await window.deightshot.kisayolDurum();
     atanabilir = d.tuslar || [];
     cakismalar = d.cakisma || {};
     tusYaz(d.ad);
@@ -222,7 +222,7 @@ window.addEventListener('keydown', async (e) => {
   dinlemeyiBitir();
   durumYaz('tusDurum', 'uygulanıyor…', 'bekle');
   try {
-    const r = await window.shot88.kisayolKur({ code: t.code });
+    const r = await window.deightshot.kisayolKur({ code: t.code });
     tusYaz(r.ad);
     const uyari = cakismalar[t.code];
     durumYaz('tusDurum', uyari ? `${r.ad} atandı · ⚠ ${uyari}` : `${r.ad} atandı`,
@@ -234,12 +234,12 @@ window.addEventListener('keydown', async (e) => {
 }, true);
 
 el('basiliTut').addEventListener('change', async () => {
-  await window.shot88.kisayolKur({ basiliTutmaMs: +el('basiliTut').value });
+  await window.deightshot.kisayolKur({ basiliTutmaMs: +el('basiliTut').value });
   durumYaz('tusDurum', 'basılı tutma güncellendi', 'iyi');
 });
 
 el('tusuYut').addEventListener('change', async () => {
-  const r = await window.shot88.kisayolKur({ tusuYut: el('tusuYut').checked });
+  const r = await window.deightshot.kisayolKur({ tusuYut: el('tusuYut').checked });
   durumYaz('tusDurum', el('tusuYut').checked
     ? 'tuş artık diğer uygulamalara gitmiyor'
     : 'tuş diğer uygulamalara da gidiyor', 'iyi');
@@ -249,7 +249,7 @@ el('tusuYut').addEventListener('change', async () => {
 kisayolYukle();
 
 // ---------------------------------------------------------------- kapatma
-el('kapat').addEventListener('click', () => window.shot88.kapat());
+el('kapat').addEventListener('click', () => window.deightshot.kapat());
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') window.shot88.kapat();
+  if (e.key === 'Escape') window.deightshot.kapat();
 });

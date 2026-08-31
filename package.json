@@ -1,6 +1,6 @@
 {
-  "name": "shot88",
-  "productName": "shot88",
+  "name": "deightshot",
+  "productName": "DeightShot",
   "version": "0.2.1",
   "description": "Ekran görüntüsü aracı: OCR ile metin seçme, mozaik/blur, basılı tut = tam ekran",
   "main": "main.js",
@@ -8,8 +8,8 @@
   "author": "88",
   "scripts": {
     "start": "electron .",
-    "native:build": "dotnet build native/Shot88.Native/Shot88.Native.csproj -c Release",
-    "native:publish": "dotnet publish native/Shot88.Native/Shot88.Native.csproj -c Release -r win-x64 --self-contained true -o dist-native",
+    "native:build": "dotnet build native/DeightShot.Native/DeightShot.Native.csproj -c Release",
+    "native:publish": "dotnet publish native/DeightShot.Native/DeightShot.Native.csproj -c Release -r win-x64 --self-contained true -o dist-native",
     "ikon": "node tools/ikon-uret.js",
     "paket": "npm run native:publish && electron-builder --win --x64",
     "paket:dizin": "npm run native:publish && electron-builder --win --x64 --dir"
@@ -22,8 +22,8 @@
     "uiohook-napi": "^1.5.4"
   },
   "build": {
-    "appId": "com.shot88.app",
-    "productName": "shot88",
+    "appId": "com.deightshot.app",
+    "productName": "DeightShot",
     "copyright": "88",
     "npmRebuild": false,
     "directories": {
@@ -48,8 +48,8 @@
       "target": [
         { "target": "nsis", "arch": ["x64"] }
       ],
-      "icon": "assets/shot88.ico",
-      "artifactName": "shot88-kurulum-${version}.${ext}"
+      "icon": "assets/deightshot.ico",
+      "artifactName": "deightshot-kurulum-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
@@ -57,7 +57,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "shot88",
+      "shortcutName": "DeightShot",
       "installerLanguages": ["tr_TR"],
       "language": "1055"
     }

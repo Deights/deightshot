@@ -1,7 +1,7 @@
-// shot88 overlay'ini gerçek tuşlarla tetikle, ekranı yakala, sonra kapat.
+// DeightShot overlay'ini gerçek tuşlarla tetikle, ekranı yakala, sonra kapat.
 // Amaç: araç çubuğunu gözle doğrulamak.
 //
-// Uygulama SHOT88_NOPROTECT=1 ile başlatılmış olmalı — yoksa overlay
+// Uygulama DEIGHTSHOT_NOPROTECT=1 ile başlatılmış olmalı — yoksa overlay
 // yakalamaya görünmez ve boş masaüstü çekeriz.
 //
 //   node tools/gorsel-test.js
@@ -10,12 +10,12 @@ const readline = require('readline');
 const path = require('path');
 const { uIOhook, UiohookKey } = require('uiohook-napi');
 
-const EXE = path.join(__dirname, '..', 'native', 'Shot88.Native', 'bin', 'Release',
-  'net10.0-windows10.0.22621.0', 'shot88-native.exe');
-const CIKTI = path.join(process.env.TEMP, 'shot88', 'gorsel-test');
+const EXE = path.join(__dirname, '..', 'native', 'DeightShot.Native', 'bin', 'Release',
+  'net10.0-windows10.0.22621.0', 'deightshot-native.exe');
+const CIKTI = path.join(process.env.TEMP, 'deightshot', 'gorsel-test');
 const bekle = (ms) => new Promise((r) => setTimeout(r, ms));
 
-// Yakalama icin AYRI bir native ornegi (shot88'in kendi surecinden bagimsiz)
+// Yakalama icin AYRI bir native ornegi (DeightShot'in kendi surecinden bagimsiz)
 const proc = spawn(EXE, [], { stdio: ['pipe', 'pipe', 'pipe'] });
 const rl = readline.createInterface({ input: proc.stdout });
 let nextId = 1;

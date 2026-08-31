@@ -3,7 +3,7 @@ using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
 using Windows.Storage.Streams;
 
-namespace Shot88.Native;
+namespace DeightShot.Native;
 
 internal sealed record OcrWordDto(string Text, double X, double Y, double W, double H);
 internal sealed record OcrLineDto(string Text, List<OcrWordDto> Words);

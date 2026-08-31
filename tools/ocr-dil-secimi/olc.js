@@ -12,9 +12,9 @@ const { spawn } = require('child_process');
 const readline = require('readline');
 
 const KOK = path.join(__dirname, '..', '..');
-const EXE = path.join(KOK, 'native', 'Shot88.Native', 'bin', 'Release',
-  'net10.0-windows10.0.22621.0', 'shot88-native.exe');
-const GORUNTU = path.join(process.env.TEMP, 'shot88', 'ocr-dil');
+const EXE = path.join(KOK, 'native', 'DeightShot.Native', 'bin', 'Release',
+  'net10.0-windows10.0.22621.0', 'deightshot-native.exe');
+const GORUNTU = path.join(process.env.TEMP, 'deightshot', 'ocr-dil');
 const ORNEKLER = require('./metinler');
 
 // --- native köprüsü ---

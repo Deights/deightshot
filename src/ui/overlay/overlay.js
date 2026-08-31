@@ -85,7 +85,7 @@ let cevUstune = false;            // false: satırın altında · true: kaynağ�
 
 // ---------------------------------------------------------------- ana süreç
 
-window.shot88.on('overlay:sifirla', (v) => {
+window.deightshot.on('overlay:sifirla', (v) => {
   document.documentElement.style.setProperty('--karartma', String(v.karartma));
   displayId = v.displayId;
   dipGenislik = v.dipGenislik;
@@ -130,7 +130,7 @@ window.shot88.on('overlay:sifirla', (v) => {
  *
  * Gizlerken silince yarış kalmıyor — bir sonraki Ins'e kadar saniyeler var.
  */
-window.shot88.on('overlay:temizle', () => {
+window.deightshot.on('overlay:temizle', () => {
   secim = null;
   mod = null;
   sekiller = [];
@@ -155,7 +155,7 @@ window.shot88.on('overlay:temizle', () => {
 
 // Donmuş kare geldi — şeffaf katmanın yerine sessizce geç.
 // PNG bayt olarak geliyor (file:// olsa canvas "tainted" olur, dışa aktarım patlar).
-window.shot88.on('overlay:kare', async (v) => {
+window.deightshot.on('overlay:kare', async (v) => {
   fizGenislik = v.fizikselGenislik;
   fizYukseklik = v.fizikselYukseklik;
   olcek = v.fizikselGenislik / v.dipGenislik;
@@ -171,7 +171,7 @@ window.shot88.on('overlay:kare', async (v) => {
   tuvalCiz();
 });
 
-window.shot88.on('overlay:tum-ekran', () => {
+window.deightshot.on('overlay:tum-ekran', () => {
   if (kilit) return;
   metinModundanCik();
   secim = { x: 0, y: 0, w: dipGenislik, h: dipYukseklik };
@@ -181,7 +181,7 @@ window.shot88.on('overlay:tum-ekran', () => {
   ocrTetikle();
 });
 
-window.shot88.on('overlay:eylem', (eylem) => {
+window.deightshot.on('overlay:eylem', (eylem) => {
   if (eylem === 'kopyala') gonder('kopyala');
   else if (eylem === 'kaydet') gonder('kaydet');
   else if (eylem === 'temizle') {
@@ -340,7 +340,7 @@ function ocrTetikle() {
   const n = sinirla(secim);
   const istek = { displayId, x: n.x, y: n.y, w: n.w, h: n.h, olcek };
   if (dilSecili !== undefined) istek.lang = dilSecili;
-  ocrSozu = window.shot88.modul('metin-secme', 'al', istek)
+  ocrSozu = window.deightshot.modul('metin-secme', 'al', istek)
     .then((c) => {
       if (!c.ok) throw new Error(c.error);
       return c.data;
@@ -353,7 +353,7 @@ function ocrTetikle() {
 async function dilleriYukle() {
   if (diller.length) return diller;
   try {
-    const c = await window.shot88.modul('metin-secme', 'diller', {});
+    const c = await window.deightshot.modul('metin-secme', 'diller', {});
     if (c.ok) diller = c.data.languages || [];
   } catch { /* önemsiz */ }
   return diller;
@@ -557,7 +557,7 @@ async function aiCalistir(islem, hazirMetin) {
   aiPanelYerlestir();
 
   try {
-    let c = await window.shot88.modul('ceviri', islem, { metin });
+    let c = await window.deightshot.modul('ceviri', islem, { metin });
     if (!c.ok) throw new Error(c.error);
 
     // Kaynak dar (oyun açık gibi) — sessizce 2 dakika bekletmek yerine sor.
@@ -567,7 +567,7 @@ async function aiCalistir(islem, hazirMetin) {
       if (!onay) { aiKapat(); return; }
       durdurSayac();
       durdurSayac = aiYukleniyorGoster(`CPU'da çalışıyor — tahmini ${Math.round(c.data.tahminSn)} sn`);
-      c = await window.shot88.modul('ceviri', islem, { metin, yavasOnayli: true });
+      c = await window.deightshot.modul('ceviri', islem, { metin, yavasOnayli: true });
       if (!c.ok) throw new Error(c.error);
     }
 
@@ -713,7 +713,7 @@ async function ceviriSatirIci() {
 
   try {
     const istek = { satirlar: satirlar.map((s) => s.kaynak) };
-    let c = await window.shot88.modul('ceviri', 'cevir-satir', istek);
+    let c = await window.deightshot.modul('ceviri', 'cevir-satir', istek);
     if (!c.ok) throw new Error(c.error);
 
     if (c.data && c.data.onayGerekli) {
@@ -721,7 +721,7 @@ async function ceviriSatirIci() {
       if (!onay) { aiKapat(); return; }
       durdurSayac();
       durdurSayac = aiYukleniyorGoster(`CPU'da çalışıyor — tahmini ${Math.round(c.data.tahminSn)} sn`);
-      c = await window.shot88.modul('ceviri', 'cevir-satir', { ...istek, yavasOnayli: true });
+      c = await window.deightshot.modul('ceviri', 'cevir-satir', { ...istek, yavasOnayli: true });
       if (!c.ok) throw new Error(c.error);
     }
 
@@ -798,7 +798,7 @@ elAiKopya.addEventListener('click', async (e) => {
   e.stopPropagation();
   if (!aiSonuc) return;
   kilit = true;
-  await window.shot88.metniKopyala(aiSonuc);
+  await window.deightshot.metniKopyala(aiSonuc);
 });
 
 async function metinModunaGir() {
@@ -819,7 +819,7 @@ async function metinModunaGir() {
     document.body.style.cursor = 'text';
     // Ana sürece bildir — Ctrl+C globalShortcut'tan geliyor, oradan
     // görsel değil METİN kopyalanmalı.
-    window.shot88.metinModuDurum(displayId, true);
+    window.deightshot.metinModuDurum(displayId, true);
     document.body.classList.add('metin-modu');
     elMIpucu.hidden = false;
     elIpucu.classList.add('solgun');
@@ -841,7 +841,7 @@ function metinModundanCik() {
   cevKatTemizle();
   aiKapat();
   document.body.style.cursor = arac === 'yok' ? 'crosshair' : 'crosshair';
-  window.shot88.metinModuDurum(displayId, false);
+  window.deightshot.metinModuDurum(displayId, false);
   document.body.classList.remove('metin-modu');
   elMIpucu.hidden = true;
   mctx.save();
@@ -938,7 +938,7 @@ async function metniPanoyaYaz() {
   const m = seciliMetin();
   if (!m.trim()) { bilgiVer('Seçili metin yok'); return; }
   kilit = true;
-  await window.shot88.metniKopyala(m);
+  await window.deightshot.metniKopyala(m);
 }
 
 /** Kısa bilgi — ölçü rozetini geçici olarak mesaj için kullanır. */
@@ -975,7 +975,7 @@ function nisanKur(x, y) {
   const zatenVardi = document.body.classList.contains('nisanli');
   document.body.classList.add('nisanli');
   // Nişangâh aynı anda tek ekranda olmalı — iki monitörde iki artı çıkıyordu.
-  if (!zatenVardi) window.shot88.nisanBende(displayId);
+  if (!zatenVardi) window.deightshot.nisanBende(displayId);
 }
 
 function nisanGizle() { document.body.classList.remove('nisanli'); }
@@ -987,7 +987,7 @@ function secimBildir() {
   const varMi = !!secim;
   if (varMi === sonBildirilen) return;
   sonBildirilen = varMi;
-  window.shot88.secimDurum(displayId, varMi);
+  window.deightshot.secimDurum(displayId, varMi);
 }
 
 function ciz() {
@@ -1152,7 +1152,7 @@ elIslem.addEventListener('click', (e) => {
   const b = e.target.closest('button');
   if (!b || b.disabled) return;
   const eylem = b.dataset.eylem;
-  if (eylem === 'kapat') window.shot88.tus('iptal');
+  if (eylem === 'kapat') window.deightshot.tus('iptal');
   else if (eylem === 'kopyala') gonder('kopyala');
   else if (eylem === 'kaydet') gonder('kaydet');
   else if (eylem === 'metni-kopyala') metniKopyalaDugmesi();
@@ -1198,7 +1198,7 @@ async function metniKopyalaDugmesi() {
     const sonuc = await ocrSozu;
     if (!sonuc.metin || !sonuc.metin.trim()) { bilgiVer('Bu bölgede metin bulunamadı'); return; }
     kilit = true;
-    await window.shot88.metniKopyala(sonuc.metin);
+    await window.deightshot.metniKopyala(sonuc.metin);
   } catch (e) {
     kilit = false;
     bilgiVer('OCR başarısız: ' + e.message);
@@ -1417,7 +1417,7 @@ document.addEventListener('contextmenu', (e) => {
   e.preventDefault();
   // Araç aktifse önce aracı bırak, seçimi koru — kullanıcı çizimden çıkmak isteyebilir.
   if (arac !== 'yok') { aracSec('yok'); return; }
-  window.shot88.tus('iptal');
+  window.deightshot.tus('iptal');
 });
 
 // ---------------------------------------------------------------- klavye
@@ -1434,14 +1434,14 @@ document.addEventListener('keydown', (e) => {
   // Kararı yine ANA SÜREÇ veriyor (globalShortcut ile çiftlenmesin diye);
   // orada metin modu bilindiği için doğru eyleme yönlendiriliyor.
   if (metinModu) {
-    if (e.key === 'Escape') { window.shot88.tus('iptal'); e.preventDefault(); return; }
+    if (e.key === 'Escape') { window.deightshot.tus('iptal'); e.preventDefault(); return; }
     // Alt: altyazıyı satırın altı ↔ kaynağın üstü arasında gezdir.
     // Satır arası dar olan yoğun metinlerde "altında" okunmuyor, "üstünde" şart.
     if (e.key === 'Alt' && cevSatirlar) {
       cevUstune = !cevUstune; cevKatCiz(); e.preventDefault(); return;
     }
-    if (e.ctrlKey && /^[aA]$/.test(e.key)) { window.shot88.tus('tum-ekran'); e.preventDefault(); return; }
-    if (e.ctrlKey && /^[cC]$/.test(e.key)) { window.shot88.tus('kopyala'); e.preventDefault(); return; }
+    if (e.ctrlKey && /^[aA]$/.test(e.key)) { window.deightshot.tus('tum-ekran'); e.preventDefault(); return; }
+    if (e.ctrlKey && /^[cC]$/.test(e.key)) { window.deightshot.tus('kopyala'); e.preventDefault(); return; }
     return;   // diğer tuşlar metin modunda iş yapmasın
   }
 
@@ -1450,11 +1450,11 @@ document.addEventListener('keydown', (e) => {
   // Bu tuşlar ana süreçte tek elden karara bağlanıyor. Sebep: aynı tuşlar
   // globalShortcut ile de yakalanıyor (overlay odağı alamasa bile çalışsın diye).
   // İkisi birden iş yaparsa Esc önce seçimi temizleyip sonra overlay'i kapatıyordu.
-  if (e.key === 'Escape')  { window.shot88.tus('iptal');     e.preventDefault(); return; }
-  if (e.key === 'Enter')   { window.shot88.tus('kopyala');   e.preventDefault(); return; }
-  if (e.ctrlKey && /^[aA]$/.test(e.key)) { window.shot88.tus('tum-ekran'); e.preventDefault(); return; }
-  if (e.ctrlKey && /^[cC]$/.test(e.key)) { window.shot88.tus('kopyala');   e.preventDefault(); return; }
-  if (e.ctrlKey && /^[sS]$/.test(e.key)) { window.shot88.tus('kaydet');    e.preventDefault(); return; }
+  if (e.key === 'Escape')  { window.deightshot.tus('iptal');     e.preventDefault(); return; }
+  if (e.key === 'Enter')   { window.deightshot.tus('kopyala');   e.preventDefault(); return; }
+  if (e.ctrlKey && /^[aA]$/.test(e.key)) { window.deightshot.tus('tum-ekran'); e.preventDefault(); return; }
+  if (e.ctrlKey && /^[cC]$/.test(e.key)) { window.deightshot.tus('kopyala');   e.preventDefault(); return; }
+  if (e.ctrlKey && /^[sS]$/.test(e.key)) { window.deightshot.tus('kaydet');    e.preventDefault(); return; }
 
   // Araç kısayolları (seçim yapıldıktan sonra anlamlı)
   if (!e.ctrlKey && !e.altKey && secim) {
@@ -1591,8 +1591,8 @@ async function gonder(islem) {
   kilit = true;
   try {
     const png = await kompozitPng();
-    if (islem === 'kopyala') await window.shot88.kopyala({ png });
-    else await window.shot88.kaydet({ png });
+    if (islem === 'kopyala') await window.deightshot.kopyala({ png });
+    else await window.deightshot.kaydet({ png });
   } catch (e) {
     console.error('dışa aktarım başarısız', e);
     kilit = false;

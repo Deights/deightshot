@@ -1,7 +1,7 @@
 using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
 
-namespace Shot88.Native;
+namespace DeightShot.Native;
 
 /// <summary>BGRA ham pikselleri PNG'ye cevirir. Diske yazar ya da bellekte tutar.</summary>
 internal static class Png

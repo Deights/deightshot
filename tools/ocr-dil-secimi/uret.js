@@ -9,7 +9,7 @@ const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-const CIKTI = path.join(process.env.TEMP, 'shot88', 'ocr-dil');
+const CIKTI = path.join(process.env.TEMP, 'deightshot', 'ocr-dil');
 const bekle = (ms) => new Promise((r) => setTimeout(r, ms));
 const ORNEKLER = require('./metinler');
 

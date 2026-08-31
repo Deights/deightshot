@@ -1,4 +1,4 @@
-# shot88
+# DeightShot
 
 **Windows için ekran görüntüsü aracı.** Lightshot'ın yaptığını yapar, üstüne
 ekrandaki **metni seçilebilir hâle getirir** (OCR), **mozaik/blur** ile
@@ -54,7 +54,7 @@ npm start
 
 ```bash
 npm run native:publish   # self-contained C# yardımcısı -> dist-native/
-npm run paket            # -> dist/shot88-kurulum-<sürüm>.exe
+npm run paket            # -> dist/deightshot-kurulum-<sürüm>.exe
 ```
 
 Kurulum dosyası imzasız olduğu için Windows Smart App Control açıksa
@@ -64,7 +64,7 @@ engellenebilir. Kurulum gerektirmeyen taşınabilir sürüm:
 npm run paket:dizin      # -> dist/win-unpacked/
 ```
 
-Klasörü olduğu gibi kopyalayıp `shot88.exe`'yi çalıştırmak yeterli —
+Klasörü olduğu gibi kopyalayıp `DeightShot.exe`'yi çalıştırmak yeterli —
 kurulum yok, yönetici yetkisi gerekmiyor.
 
 ## Mimari
@@ -73,7 +73,7 @@ kurulum yok, yönetici yetkisi gerekmiyor.
 Electron (arayüz, overlay, çizim)
    │  satır-JSON, stdin/stdout
    ▼
-shot88-native.exe  (C# / .NET)
+deightshot-native.exe  (C# / .NET)
    ├─ Windows Graphics Capture   yakalama (BitBlt değil — oyunlarda da çalışır)
    ├─ Windows.Media.Ocr          metin tanıma, offline
    └─ WH_KEYBOARD_LL             kısayol; tuşu yutar

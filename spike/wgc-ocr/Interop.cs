@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Shot88.Spike;
+namespace DeightShot.Spike;
 
 /// <summary>
 /// WGC icin gereken COM/WinRT kopruleri. .NET 5+ ile birlikte yerlesik WinRT

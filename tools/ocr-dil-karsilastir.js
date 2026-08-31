@@ -9,10 +9,10 @@ const readline = require('readline');
 const path = require('path');
 const fs = require('fs');
 
-const EXE = path.join(__dirname, '..', 'native', 'Shot88.Native', 'bin', 'Release',
-  'net10.0-windows10.0.22621.0', 'shot88-native.exe');
+const EXE = path.join(__dirname, '..', 'native', 'DeightShot.Native', 'bin', 'Release',
+  'net10.0-windows10.0.22621.0', 'deightshot-native.exe');
 
-const dizin = path.join(process.env.TEMP, 'shot88', 'gorsel-test');
+const dizin = path.join(process.env.TEMP, 'deightshot', 'gorsel-test');
 const PNG = process.argv[2] ||
   path.join(dizin, fs.readdirSync(dizin).filter(f => f.startsWith('ekran0'))[0]);
 

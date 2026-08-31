@@ -73,7 +73,7 @@ const VARSAYILAN = {
   tusuYut: true,
 
   // Yakalanan görsel kaydedilirken varsayılan klasör
-  kayitKlasoru: null, // null => Resimler/shot88
+  kayitKlasoru: null, // null => Resimler/deightshot
 
   // Overlay karartma yoğunluğu (0-1)
   karartma: 0.45,
@@ -85,8 +85,35 @@ const VARSAYILAN = {
 let mevcut = { ...VARSAYILAN };
 let dosya = null;
 
+/* ── Tek seferlik gec: shot88 -> DeightShot ─────────────────────────
+   Urun adi degisince Electron'un userData yolu da degisiyor:
+   %APPDATA%\shot88  ->  %APPDATA%\DeightShot
+
+   Gec yapilmazsa kullanici uygulamayi FABRIKA AYARLARINDA gorur —
+   kisayol tusu, basili tutma esigi, kayit klasoru, hepsi gider.
+   Yeniden adlandirmanin en kolay gozden kacan bedeli budur: kod
+   calisir, hata vermez, ama kullanici her seyini kaybeder.
+
+   Iki emniyet:
+     1. Yalnizca YENI dosya yokken calisir — mevcut ayarin uzerine yazmaz.
+     2. Eski dosya SILINMEZ — geri donus yolu acik kalir.
+   Eski urun adi bilincli olarak sabit yazildi; tarihsel bir degerdir. */
+function eskiAyarlariTasi(hedef) {
+  try {
+    if (fs.existsSync(hedef)) return;              // yeni ayar zaten var
+    const eski = path.join(app.getPath('appData'), 'shot88', 'ayarlar.json');
+    if (!fs.existsSync(eski)) return;              // gececek bir sey yok
+    fs.mkdirSync(path.dirname(hedef), { recursive: true });
+    fs.copyFileSync(eski, hedef);
+    console.log('[ayarlar] onceki surumden tasindi:', eski);
+  } catch (e) {
+    console.error('[ayarlar] gec basarisiz, varsayilanlarla devam:', e.message);
+  }
+}
+
 function init() {
   dosya = path.join(app.getPath('userData'), 'ayarlar.json');
+  eskiAyarlariTasi(dosya);
   try {
     const ham = JSON.parse(fs.readFileSync(dosya, 'utf8'));
     mevcut = { ...VARSAYILAN, ...ham };
@@ -94,7 +121,7 @@ function init() {
     // ilk çalıştırma — varsayılanlarla devam
   }
   if (!mevcut.kayitKlasoru) {
-    mevcut.kayitKlasoru = path.join(app.getPath('pictures'), 'shot88');
+    mevcut.kayitKlasoru = path.join(app.getPath('pictures'), 'deightshot');
   }
 }
 

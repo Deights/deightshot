@@ -6,7 +6,7 @@
 // OCR metin seçme, sözlük, çeviri, açıkla.
 //
 // Modül ↔ renderer köprüsü:
-//   renderer  →  window.shot88.modul(mid, komut, veri)  →  ctx.komut(ad, fn)
+//   renderer  →  window.deightshot.modul(mid, komut, veri)  →  ctx.komut(ad, fn)
 //   modül     →  ctx.overlaya(displayId, tip, veri)     →  'modul:olay'
 const { ipcMain } = require('electron');
 const fs = require('fs');
@@ -47,7 +47,7 @@ function ctxKur(manifest, cekirdek) {
      * Overlay AÇILIRKEN tam ekran bir uygulama (oyun) ön planda mıydı.
      *
      * 🔴 Bunu modül kendi ölçemez: overlay ekranı kapladıktan sonra "ön plandaki
-     * uygulama" artık shot88'in kendisi. Ölçüm yakalama anında yapılıyor
+     * uygulama" artık DeightShot'in kendisi. Ölçüm yakalama anında yapılıyor
      * (capture.js), burada sadece okunuyor.
      */
     oyunDurumu: () => ({

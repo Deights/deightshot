@@ -1,4 +1,4 @@
-// shot88-native köprüsü — C# yardımcı sürecini başlatır, satır-JSON ile konuşur.
+// deightshot-native köprüsü — C# yardımcı sürecini başlatır, satır-JSON ile konuşur.
 //
 // Neden ayrı süreç: WGC ve Windows.Media.Ocr C#'ta birinci sınıf. Ayrıca OCR
 // ayrı süreçte olunca Electron'un UI iş parçacığı hiç kilitlenmiyor.
@@ -16,9 +16,9 @@ const TFM = 'net10.0-windows10.0.22621.0';
 
 // Geliştirmede bin/Release, paketlendiğinde resources/native altında aranır.
 const ADAYLAR = [
-  path.join(KOK, 'native', 'Shot88.Native', 'bin', 'Release', TFM, 'shot88-native.exe'),
-  path.join(KOK, 'native', 'Shot88.Native', 'bin', 'Debug', TFM, 'shot88-native.exe'),
-  path.join(process.resourcesPath || KOK, 'native', 'shot88-native.exe'),
+  path.join(KOK, 'native', 'DeightShot.Native', 'bin', 'Release', TFM, 'deightshot-native.exe'),
+  path.join(KOK, 'native', 'DeightShot.Native', 'bin', 'Debug', TFM, 'deightshot-native.exe'),
+  path.join(process.resourcesPath || KOK, 'native', 'deightshot-native.exe'),
 ];
 
 let proc = null;
@@ -38,7 +38,7 @@ function exeYolu() {
 function baslat() {
   const exe = exeYolu();
   if (!exe) {
-    console.error('[native] shot88-native.exe bulunamadı. Önce derle:');
+    console.error('[native] deightshot-native.exe bulunamadı. Önce derle:');
     console.error('[native]   npm run native:build');
     return false;
   }

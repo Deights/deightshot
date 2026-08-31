@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Shot88.Native;
+namespace DeightShot.Native;
 
 internal sealed record DisplayInfo(
     int Index,

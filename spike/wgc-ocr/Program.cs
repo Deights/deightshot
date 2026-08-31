@@ -1,11 +1,11 @@
-// shot88 spike — WGC yakalama + Windows.Media.Ocr kelime koordinatlari
+// DeightShot spike — WGC yakalama + Windows.Media.Ocr kelime koordinatlari
 //
 // Kullanim:
 //   dotnet run -- --monitor
 //   dotnet run -- --window "Cyberpunk"
 //   dotnet run -- --monitor --delay 5000 --lang en-US
 using System.Diagnostics;
-using Shot88.Spike;
+using DeightShot.Spike;
 using Windows.Globalization;
 using Windows.Graphics.Imaging;
 using Windows.Media.Ocr;
@@ -36,7 +36,7 @@ string Next(ref int i) => ++i < args.Length ? args[i] : "";
 Interop.SetProcessDpiAwarenessContext(Interop.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 Directory.CreateDirectory(outDir);
 
-Console.WriteLine("== shot88 spike : WGC + OCR ==");
+Console.WriteLine("== DeightShot spike : WGC + OCR ==");
 Console.WriteLine($"WGC destekleniyor mu : {Wgc.IsSupported()}");
 if (!Wgc.IsSupported())
 {

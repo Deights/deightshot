@@ -6,7 +6,7 @@
          bu surumden itibaren var. Gercek uygulamada 19041'e dusup bu ozelligi
          calisma zamaninda yoklamak gerekebilir. -->
     <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
-    <RootNamespace>Shot88.Spike</RootNamespace>
+    <RootNamespace>DeightShot.Spike</RootNamespace>
     <AssemblyName>wgc-ocr</AssemblyName>
     <Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>

@@ -27,7 +27,7 @@ function ac() {
     minWidth: 520,
     minHeight: 520,
     show: false,
-    title: 'shot88 — Ayarlar',
+    title: 'DeightShot — Ayarlar',
     backgroundColor: '#141417',
     autoHideMenuBar: true,
     icon: nativeImage.createFromPath(

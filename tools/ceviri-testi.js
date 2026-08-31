@@ -7,8 +7,8 @@ const { spawn } = require('child_process');
 const readline = require('readline');
 
 // --- sahte ctx: modül Electron'a bağımlı olmasın diye ---
-const EXE = path.join(__dirname, '..', 'native', 'Shot88.Native', 'bin', 'Release',
-  'net10.0-windows10.0.22621.0', 'shot88-native.exe');
+const EXE = path.join(__dirname, '..', 'native', 'DeightShot.Native', 'bin', 'Release',
+  'net10.0-windows10.0.22621.0', 'deightshot-native.exe');
 
 const proc = spawn(EXE, [], { stdio: ['pipe', 'pipe', 'pipe'] });
 const rl = readline.createInterface({ input: proc.stdout });

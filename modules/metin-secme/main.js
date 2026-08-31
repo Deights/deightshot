@@ -1,6 +1,6 @@
 // metin-secme — OCR ile metin seçme/kopyalama.
 //
-// Bu, shot88'i Lightshot'tan ayıran asıl özellik. Çekirdeğe değil modüle
+// Bu, DeightShot'i Lightshot'tan ayıran asıl özellik. Çekirdeğe değil modüle
 // yazılıyor (tasarım kuralı: yakalama/overlay çekirdek, OCR/sözlük/çeviri eklenti).
 //
 // Akış:

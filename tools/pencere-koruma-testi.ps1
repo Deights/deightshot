@@ -5,7 +5,7 @@
 #   1 = WDA_MONITOR            yakalamada SİYAH çıkar
 #   17 = WDA_EXCLUDEFROMCAPTURE yakalamada YOK sayılır
 #
-# shot88 overlay'i de bu bayrağı kullanıyor (kendini yakalamasın diye).
+# DeightShot overlay'i de bu bayrağı kullanıyor (kendini yakalamasın diye).
 #
 #   powershell -ExecutionPolicy Bypass -File tools/pencere-koruma-testi.ps1
 #   powershell ... -File tools/pencere-koruma-testi.ps1 -Filtre telegram

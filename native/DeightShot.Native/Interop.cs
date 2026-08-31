@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Shot88.Native;
+namespace DeightShot.Native;
 
 /// <summary>
 /// WGC icin gereken COM/WinRT kopruleri. .NET 5+ ile birlikte yerlesik WinRT

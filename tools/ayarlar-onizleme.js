@@ -3,7 +3,7 @@
 //
 //   npx electron tools/ayarlar-onizleme.js
 //
-// shot88'in tamamını başlatmadan sadece pencereyi kurar; modül çağrıları için
+// DeightShot'in tamamını başlatmadan sadece pencereyi kurar; modül çağrıları için
 // `modul:cagir` kanalını gerçek ceviri modülüne bağlar.
 
 const { app, BrowserWindow, ipcMain } = require('electron');
@@ -11,7 +11,7 @@ const path = require('path');
 const fs = require('fs');
 
 const KOK = path.join(__dirname, '..');
-const CIKTI = path.join(process.env.TEMP, 'shot88', 'ayarlar-onizleme');
+const CIKTI = path.join(process.env.TEMP, 'deightshot', 'ayarlar-onizleme');
 const bekle = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // --- sahte çekirdek: gerçek ceviri modülünü Electron'un tamamı olmadan koş ---

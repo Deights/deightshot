@@ -6,14 +6,14 @@
 // src/ui/overlay/overlay.js'ten okunup sahneye enjekte ediliyor. Kopyasını
 // yazsaydık overlay.js değiştiğinde test yalan söylemeye başlardı.
 //
-// Çıktı: %TEMP%\shot88\altyazi-onizleme\disa-aktarim.png
+// Çıktı: %TEMP%\deightshot\altyazi-onizleme\disa-aktarim.png
 
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
 const KOK = path.join(__dirname, '..', '..');
-const CIKTI = path.join(process.env.TEMP, 'shot88', 'altyazi-onizleme');
+const CIKTI = path.join(process.env.TEMP, 'deightshot', 'altyazi-onizleme');
 const bekle = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /** overlay.js'ten bir fonksiyonun kaynağını süslü parantez sayarak çıkar. */

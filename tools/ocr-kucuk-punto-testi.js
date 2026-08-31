@@ -10,8 +10,8 @@ const { spawn } = require('child_process');
 const readline = require('readline');
 const path = require('path');
 
-const EXE = path.join(__dirname, '..', 'native', 'Shot88.Native', 'bin', 'Release',
-  'net10.0-windows10.0.22621.0', 'shot88-native.exe');
+const EXE = path.join(__dirname, '..', 'native', 'DeightShot.Native', 'bin', 'Release',
+  'net10.0-windows10.0.22621.0', 'deightshot-native.exe');
 
 const proc = spawn(EXE, [], { stdio: ['pipe', 'pipe', 'pipe'] });
 const rl = readline.createInterface({ input: proc.stdout });
@@ -51,7 +51,7 @@ const SEMBOLLER = ['\\', '→', '%', '(', ')', '{', '}', ';', '+'];
   // Hem icerigi bilinen sabit bir kare (olcum tekrarlanabilir olsun),
   // hem de kullanicinin o an ekraninda ne varsa ona dokunmamis oluyoruz.
   const fs = require('fs');
-  const dizin = path.join(process.env.TEMP, 'shot88', 'gorsel-test');
+  const dizin = path.join(process.env.TEMP, 'deightshot', 'gorsel-test');
   const kare = {
     path: process.argv[2] ||
       path.join(dizin, fs.readdirSync(dizin).filter(f => f.startsWith('ekran0'))[0]),

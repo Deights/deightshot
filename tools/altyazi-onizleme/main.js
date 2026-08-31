@@ -7,13 +7,13 @@
 // Burada sadece PENCERENİN İÇİ çekiliyor — masaüstü hiç görüntülenmiyor,
 // sentetik tuş da üretilmiyor. Sahne yapay, gerçek ekran görüntüsü değil.
 //
-// Çıktı: %TEMP%\shot88\altyazi-onizleme\{alt,ustu}.png
+// Çıktı: %TEMP%\deightshot\altyazi-onizleme\{alt,ustu}.png
 
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
-const CIKTI = path.join(process.env.TEMP, 'shot88', 'altyazi-onizleme');
+const CIKTI = path.join(process.env.TEMP, 'deightshot', 'altyazi-onizleme');
 const GEN = 1180, YUK = 620;
 
 const bekle = (ms) => new Promise((r) => setTimeout(r, ms));

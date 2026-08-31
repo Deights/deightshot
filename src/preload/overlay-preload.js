@@ -2,7 +2,7 @@
 // nodeIntegration kapalı, contextIsolation açık.
 const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('shot88', {
+contextBridge.exposeInMainWorld('deightshot', {
   /** ana süreçten gelen olaylar */
   on(kanal, fn) {
     // 'overlay:eylem' içinde kopyala/kaydet/temizle/nisan-gizle geliyor

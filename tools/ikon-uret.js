@@ -96,7 +96,7 @@ function ikon(N) {
 // PNG üreticisini kullanıp tek kapsayıcıda topluyoruz.
 function icoYaz(boyutlar, hedef) {
   const pngler = boyutlar.map((N) => {
-    const gecici = path.join(require('os').tmpdir(), `shot88-ico-${N}.png`);
+    const gecici = path.join(require('os').tmpdir(), `deightshot-ico-${N}.png`);
     pngYaz(N, N, ikon(N), gecici);
     const veri = fs.readFileSync(gecici);
     fs.unlinkSync(gecici);
@@ -136,6 +136,6 @@ for (const N of [16, 32, 64]) {
   console.log(`yazıldı: assets/tray-${N}.png (${boyut} bayt)`);
 }
 
-const icoYol = path.join(__dirname, '..', 'assets', 'shot88.ico');
+const icoYol = path.join(__dirname, '..', 'assets', 'deightshot.ico');
 const icoBoyut = icoYaz([16, 24, 32, 48, 64, 128, 256], icoYol);
-console.log(`yazıldı: assets/shot88.ico (${icoBoyut} bayt, 7 boyut)`);
+console.log(`yazıldı: assets/deightshot.ico (${icoBoyut} bayt, 7 boyut)`);

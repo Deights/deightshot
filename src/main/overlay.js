@@ -45,7 +45,7 @@ function pencereOlustur(display) {
     skipTaskbar: true,
     alwaysOnTop: true,
     acceptFirstMouse: true,
-    title: 'shot88 overlay',
+    title: 'DeightShot overlay',
     webPreferences: {
       preload: PRELOAD,
       nodeIntegration: false,
@@ -89,7 +89,7 @@ function olustur() {
 /**
  * Overlay pencerelerini ekran yakalamadan hariç tut.
  *
- * Zorunlu: shot88 önce overlay'i gösterip SONRA yakalıyor (0ms açılış hissi).
+ * Zorunlu: DeightShot önce overlay'i gösterip SONRA yakalıyor (0ms açılış hissi).
  * Bu olmadan WGC kendi karartmamızı ve nişangâhımızı da yakalıyor, donmuş
  * karenin içine gömülü kalıyorlar — kullanımda "silik ikinci nişangâh" olarak
  * fark edildi, ekran iki kez kararınca da "hiç açılmadı" gibi görünüyordu.
@@ -102,9 +102,9 @@ function olustur() {
  */
 function yakalamadanHaricTut() {
   // Hata ayıklama kapısı: overlay yakalamaya görünmez olduğu için kendi
-  // ekran görüntüsünü alamıyoruz. SHOT88_NOPROTECT=1 ile geçici olarak kapatılır.
-  if (process.env.SHOT88_NOPROTECT) {
-    console.warn('[overlay] SHOT88_NOPROTECT=1 — yakalama koruması KAPALI (sadece hata ayıklama)');
+  // ekran görüntüsünü alamıyoruz. DEIGHTSHOT_NOPROTECT=1 ile geçici olarak kapatılır.
+  if (process.env.DEIGHTSHOT_NOPROTECT) {
+    console.warn('[overlay] DEIGHTSHOT_NOPROTECT=1 — yakalama koruması KAPALI (sadece hata ayıklama)');
     return;
   }
 

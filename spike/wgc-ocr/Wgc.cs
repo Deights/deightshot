@@ -7,7 +7,7 @@ using Windows.Graphics.Capture;
 using Windows.Graphics.DirectX;
 using Windows.Graphics.DirectX.Direct3D11;
 
-namespace Shot88.Spike;
+namespace DeightShot.Spike;
 
 internal sealed record CaptureResult(
     byte[] Bgra,

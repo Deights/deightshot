@@ -1,4 +1,4 @@
-// shot88-native — Electron'un yaninda calisan yardimci surec.
+// deightshot-native — Electron'un yaninda calisan yardimci surec.
 //
 // Protokol: satir basina bir JSON. stdin'den istek, stdout'a cevap.
 //   istek : {"id":1,"cmd":"capture","args":{...}}
@@ -8,7 +8,7 @@
 // yoksa Electron tarafindaki JSON ayristirici bozulur.
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Shot88.Native;
+using DeightShot.Native;
 
 Interop.SetProcessDpiAwarenessContext(Interop.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
@@ -19,7 +19,7 @@ var jsonOpts = new JsonSerializerOptions
 };
 
 var stdout = Console.Out;
-string tempRoot = Path.Combine(Path.GetTempPath(), "shot88");
+string tempRoot = Path.Combine(Path.GetTempPath(), "deightshot");
 Directory.CreateDirectory(tempRoot);
 
 void Log(string m) => Console.Error.WriteLine("[native] " + m);

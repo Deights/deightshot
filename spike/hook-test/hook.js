@@ -1,4 +1,4 @@
-// shot88 spike — uiohook-napi ile "basili tutma" tespiti
+// DeightShot spike — uiohook-napi ile "basili tutma" tespiti
 //
 //   node hook.js           -> otomatik test (sentetik F13 basisi, elle mudahale gerekmez)
 //   node hook.js --manual  -> 20 sn boyunca gercek tus basislerini dinler (Ins dene)
@@ -24,7 +24,7 @@ function ilgiliMi(keycode) {
 
 const log = (...a) => console.log(...a);
 
-// --- shot88'in gercek mantigi: tek akis, iki sonuc ---
+// --- DeightShot'in gercek mantigi: tek akis, iki sonuc ---
 const basili = new Map();   // keycode -> { t0, timer, tekrar }
 const sonuclar = [];
 
@@ -68,7 +68,7 @@ const ms = (t0) => Date.now() - t0 + 'ms';
 uIOhook.on('keydown', onKeyDown);
 uIOhook.on('keyup', onKeyUp);
 
-log('== shot88 spike : klavye hook ==');
+log('== DeightShot spike : klavye hook ==');
 log(`esik: ${ESIK_MS}ms`);
 
 let hookOk = false;

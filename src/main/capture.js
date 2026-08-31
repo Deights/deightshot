@@ -240,7 +240,7 @@ async function tamamla(veri, islem) {
 
     const s = settings.get();
     fs.mkdirSync(s.kayitKlasoru, { recursive: true });
-    const hedef = path.join(s.kayitKlasoru, `shot88-${damga()}.png`);
+    const hedef = path.join(s.kayitKlasoru, `deightshot-${damga()}.png`);
     fs.writeFileSync(hedef, gorsel.toPNG());
     console.log(`[yakala] kaydedildi: ${hedef} (${boyut.width}x${boyut.height})`);
     shell.showItemInFolder(hedef);

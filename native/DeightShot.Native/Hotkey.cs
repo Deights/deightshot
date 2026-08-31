@@ -1,12 +1,12 @@
 using System.Runtime.InteropServices;
 
-namespace Shot88.Native;
+namespace DeightShot.Native;
 
 /// <summary>
 /// Düşük seviye klavye hook'u (WH_KEYBOARD_LL) — uiohook-napi'nin YAPAMADIĞI şeyi yapar:
 /// tuşu **yutar**, yani odaktaki uygulamaya hiç geçirmez.
 ///
-/// Neden gerekli: Ins'e basınca shot88 overlay'i açılıyor ama tuş aynı anda
+/// Neden gerekli: Ins'e basınca DeightShot overlay'i açılıyor ama tuş aynı anda
 /// editöre de gidip "overtype" (OVR) modunu açıyordu. Gerçek tuşla ölçülerek
 /// doğrulandı.
 ///
@@ -114,7 +114,7 @@ internal static class Hotkey
             UnhookWindowsHookEx(_hook);
             _hook = IntPtr.Zero;
         })
-        { IsBackground = true, Name = "shot88-hotkey" };
+        { IsBackground = true, Name = "deightshot-hotkey" };
 
         _thread.SetApartmentState(ApartmentState.STA);
         _thread.Start();

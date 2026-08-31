@@ -1,4 +1,4 @@
-// shot88 — ana süreç önyükleme.
+// DeightShot — ana süreç önyükleme.
 // Uygulama penceresiz çalışır: tray'de durur, Ins'e basınca overlay açılır.
 const { app, BrowserWindow } = require('electron');
 
@@ -68,10 +68,10 @@ function basla() {
       })
       .catch((e) => console.warn('[ocr] dil listesi okunamadı:', e.message));
 
-    console.log('[app] shot88 hazır. Tray’de bekliyor.');
+    console.log('[app] DeightShot hazır. Tray’de bekliyor.');
 
-    // Otomatik duman testi: SMOKE88=1 → tetikle, sonra kapat.
-    if (process.env.SMOKE88) smokeTesti();
+    // Otomatik duman testi: DEIGHTSHOT_SMOKE=1 → tetikle, sonra kapat.
+    if (process.env.DEIGHTSHOT_SMOKE) smokeTesti();
   });
 
   app.on('before-quit', () => {
@@ -112,7 +112,7 @@ async function smokeTesti() {
     try {
       const fs = require('fs');
       const path = require('path');
-      const dizin = path.join(require('os').tmpdir(), 'shot88', 'arayuz');
+      const dizin = path.join(require('os').tmpdir(), 'deightshot', 'arayuz');
       fs.mkdirSync(dizin, { recursive: true });
       for (const w of state.overlayWindows) {
         if (w.isDestroyed()) continue;
@@ -141,7 +141,7 @@ async function smokeTesti() {
           { tip:'vurgu',  renk:'#ffcc00', kal:5, noktalar:[{x:600,y:560},{x:900,y:560}] },
           // Mozaik okunur metnin üstüne — redaksiyon gerçekten çalışıyor mu görelim
           { tip:'mozaik', renk:'#000',    kal:1, x1:60,  y1:250, x2:215, y2:430 },
-          { tip:'metin',  renk:'#ffffff', kal:4, punto:26, x:640, y:400, satirlar:['shot88 testi'] },
+          { tip:'metin',  renk:'#ffffff', kal:4, punto:26, x:640, y:400, satirlar:['DeightShot testi'] },
         ];
         tuvalCiz();
         ciz();
@@ -153,7 +153,7 @@ async function smokeTesti() {
 
       await bekle(300);
       const g = await w0.webContents.capturePage();
-      const p2 = require('path').join(require('os').tmpdir(), 'shot88', 'arayuz', 'overlay-cizimli.png');
+      const p2 = require('path').join(require('os').tmpdir(), 'deightshot', 'arayuz', 'overlay-cizimli.png');
       require('fs').writeFileSync(p2, g.toPNG());
       log(`çizimli arayüz görüntüsü: ${p2}`);
     } catch (e) {
@@ -216,7 +216,7 @@ async function smokeTesti() {
 
       await bekle(300);
       const g2 = await w0.webContents.capturePage();
-      const p3 = require('path').join(require('os').tmpdir(), 'shot88', 'arayuz', 'overlay-metin.png');
+      const p3 = require('path').join(require('os').tmpdir(), 'deightshot', 'arayuz', 'overlay-metin.png');
       require('fs').writeFileSync(p3, g2.toPNG());
       log(`metin modu görüntüsü: ${p3}`);
 
@@ -275,7 +275,7 @@ async function smokeTesti() {
     }
 
     // --- AI paneli: çeviri/açıklama arayüzü render oluyor mu ---
-    if (process.env.SMOKE88_AI) {
+    if (process.env.DEIGHTSHOT_SMOKE_AI) {
       try {
         await capture.ac();
         await bekle(1200);
@@ -292,7 +292,7 @@ async function smokeTesti() {
         log('AI paneli: ' + JSON.stringify(ai));
 
         const g3 = await w2.webContents.capturePage();
-        const p4 = require('path').join(require('os').tmpdir(), 'shot88', 'arayuz', 'overlay-ai.png');
+        const p4 = require('path').join(require('os').tmpdir(), 'deightshot', 'arayuz', 'overlay-ai.png');
         require('fs').mkdirSync(require('path').dirname(p4), { recursive: true });
         require('fs').writeFileSync(p4, g3.toPNG());
         log(`AI paneli görüntüsü: ${p4}`);

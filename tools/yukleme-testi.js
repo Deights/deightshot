@@ -1,5 +1,5 @@
 // Ana süreç modülleri sorunsuz yükleniyor mu — uygulamanın TAMAMINI
-// başlatmadan. Kurulu shot88 çalışırken `electron .` demek tekil örnek
+// başlatmadan. Kurulu DeightShot çalışırken `electron .` demek tekil örnek
 // kilidine takılıp kurulu sürümde overlay açtırıyor; bu araç onu yapmaz.
 //
 //   npx electron tools/yukleme-testi.js

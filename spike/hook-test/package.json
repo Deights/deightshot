@@ -1,8 +1,8 @@
 {
-  "name": "shot88-hook-spike",
+  "name": "deightshot-hook-spike",
   "private": true,
   "version": "0.0.0",
-  "description": "shot88 spike: uiohook-napi ile tus basili tutma suresi olculebiliyor mu",
+  "description": "DeightShot spike: uiohook-napi ile tus basili tutma suresi olculebiliyor mu",
   "main": "hook.js",
   "dependencies": {
     "uiohook-napi": "^1.5.4"

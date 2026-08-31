@@ -16,7 +16,7 @@ function init() {
   );
 
   state.tray = new Tray(ikon);
-  state.tray.setToolTip('shot88 — ekran görüntüsü');
+  state.tray.setToolTip('DeightShot — ekran görüntüsü');
   menuKur();
 
   // TEK tık = bölge seçimi başlat. Tasarım kararı: "elim dolu olabilir, mouse ile
@@ -28,7 +28,7 @@ function init() {
 function menuKur() {
   const s = settings.get();
   const menu = Menu.buildFromTemplate([
-    { label: `shot88 ${app.getVersion()}`, enabled: false },
+    { label: `DeightShot ${app.getVersion()}`, enabled: false },
     { type: 'separator' },
     { label: `Bölge seç  (${s.kisayolAd})`, click: () => capture.ac() },
     {
@@ -114,7 +114,7 @@ function menuKur() {
       checked: autostart.durum().acik,
       enabled: autostart.paketliMi(),
       toolTip: autostart.paketliMi()
-        ? 'shot88 açılışta tray’de bekler'
+        ? 'DeightShot açılışta tray’de bekler'
         : 'Yalnızca kurulu sürümde çalışır (şu an geliştirme modundasın)',
       click: (mi) => { autostart.ayarla(mi.checked); menuKur(); },
     },

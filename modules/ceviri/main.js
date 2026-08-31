@@ -22,7 +22,7 @@ let sonKarar = null;
 /**
  * Overlay açılırken oyun ön planda mıydı.
  * Modül kendi ölçemez — overlay ekranı kaplayınca ön plandaki uygulama
- * shot88'in kendisi oluyor. Çekirdek yakalama anında ölçüp saklıyor.
+ * DeightShot'in kendisi oluyor. Çekirdek yakalama anında ölçüp saklıyor.
  */
 function oyunAcikMi() {
   try { return !!(ctx.oyunDurumu && ctx.oyunDurumu().acik); }

@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using Vortice.DXGI;
 
-namespace Shot88.Native;
+namespace DeightShot.Native;
 
 /// <param name="VramToplamMb">Ekran kartının özel belleği (donanım).</param>
 /// <param name="VramSurecKullanimMb">SADECE bizim sürecimizin kullandığı VRAM.</param>
