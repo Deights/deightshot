@@ -74,7 +74,17 @@ function baslat() {
   });
 
   // Native'in logları stderr'den gelir — stdout protokol için ayrılmıştır.
-  proc.stderr.on('data', (d) => process.stderr.write(d.toString()));
+  proc.stderr.on('data', (d) => {
+    /* ⚠️ process.stderr borusu KOPUK olabilir. Uygulama konsolsuz
+       baslatildiginda, ya da baslatan surec kapandiginda, bu write
+       EPIPE firlatir; yakalanmadigi icin Electron "A JavaScript error
+       occurred in the main process" penceresini acar ve uygulama
+       kullanilamaz hale gelir. 31 Agu 2026'da yasandi: uygulama
+       baska bir surecten baslatildi, o surec kapandi, log yazilamadi
+       ve uygulama komple durdu.
+       Log yazamamak uygulamayi durdurmamali. */
+    try { process.stderr.write(d.toString()); } catch { /* log yazilamadi */ }
+  });
 
   proc.on('exit', (code) => {
     console.error(`[native] süreç kapandı (kod ${code})`);
