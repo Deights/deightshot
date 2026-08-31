@@ -1,51 +1,175 @@
-// Tray ikonu üretici — dışarıdan görsel dosyası taşımamak için.
-// Koyu yuvarlak kare + beyaz "seçim çerçevesi" köşeleri (aracın işi bu).
-// Çalıştır: node tools/ikon-uret.js
+#!/usr/bin/env node
+/* ============================================================
+   IKON URETICI — assets/logo-kaynak.png'den tepsi ikonlarini
+   ve uygulama .ico dosyasini uretir.
+   ------------------------------------------------------------
+   CALISTIR:  node tools/ikon-uret.js
+
+   NEDEN BOYLE:
+   Ikon artik kodla CIZILMIYOR, sahibinin cizdigi logodan
+   URETILIYOR. Kaynak logo depoda (assets/logo-kaynak.png), yani
+   ikon yeniden uretilebilir — "bu ikon nereden geldi" sorusunun
+   cevabi kaybolmuyor.
+
+   DIS BAGIMLILIK YOK. PNG cozucu, olcekleyici, PNG yazici ve ICO
+   paketleyici bu dosyanin icinde. Sebep: ikon ureticisi ugruna
+   projeye goruntu kutuphanesi kurmak, kurulum yukunu her
+   gelistiriciye odetir.
+
+   BOYUTA GORE AYAR (uc tur render edilip GOZLE secildi):
+   Kucuk boyutlarda PAY BIRAKMAK olumcul. 16 pikselde kenardaki
+   iki piksel isaretin okunabilirligini bitiriyordu — olculdu:
+   payli surumde 16px bir leke, paysiz surumde ic ice iki form
+   secilebiliyor. O yuzden pay boyutla birlikte buyuyor, 16 ve
+   24'te sifir.
+   ============================================================ */
+'use strict';
 const zlib = require('zlib');
 const fs = require('fs');
 const path = require('path');
 
-function pngYaz(genislik, yukseklik, pikselFn, hedef) {
-  // Ham RGBA satırları (her satırın başına filtre baytı 0)
-  const satirBoyu = genislik * 4 + 1;
-  const ham = Buffer.alloc(satirBoyu * yukseklik);
-  for (let y = 0; y < yukseklik; y++) {
-    ham[y * satirBoyu] = 0;
-    for (let x = 0; x < genislik; x++) {
-      const [r, g, b, a] = pikselFn(x, y);
-      const o = y * satirBoyu + 1 + x * 4;
-      ham[o] = r; ham[o + 1] = g; ham[o + 2] = b; ham[o + 3] = a;
-    }
+const KAYNAK = path.join(__dirname, '..', 'assets', 'logo-kaynak.png');
+const ASSETS = path.join(__dirname, '..', 'assets');
+
+const ZEMIN = [245, 245, 245];   // karo
+const ISARET = [16, 16, 18];     // logo
+
+/* pay: kenar boslugu (piksel) · en: yatay doldurma orani · kose: yuvarlaklik */
+/* ⚠️ PAY, YUVARLAK KOSEDEN BUYUK OLMALI.
+   Yaricapi r olan bir yuvarlak kosede, kare bir seklin kesilmeden
+   sigabilmesi icin gereken en kucuk pay r*(1 - 1/karekok2) ~= 0.293*r.
+   kose = 0.20*N oldugu icin bu ~0.06*N eder. Ilk surumde 64 icin pay 3
+   verilmisti (gereken ~4) ve isaretin sol ust kosesi karonun yuvarlagina
+   takilip KESILIYORDU — render edilip gozle goruldu.
+   16 ve 24'te kose yaricapi kucuk (0.14) ve pay birakmak okunabilirligi
+   bitirdigi icin bilerek tasma birakiliyor; o boyutta tam doldurmak
+   kesilmekten daha iyi duruyor (olculdu). */
+const AYAR = {
+  16:  { pay: 0,  en: 1.00, kose: 0.14 },
+  24:  { pay: 0,  en: 1.00, kose: 0.14 },
+  32:  { pay: 2,  en: 0.95, kose: 0.20 },
+  48:  { pay: 4,  en: 0.90, kose: 0.20 },
+  64:  { pay: 5,  en: 0.88, kose: 0.20 },
+  128: { pay: 10, en: 0.86, kose: 0.20 },
+  256: { pay: 20, en: 0.86, kose: 0.20 },
+};
+const TRAY = [16, 32, 64];                       // uygulamanin okudugu boyutlar
+const ICO = [16, 24, 32, 48, 64, 128, 256];
+
+/* ---------- PNG cozucu (8 bit, RGBA/RGB/gri, aralikli degil) ---------- */
+function pngOku(dosya) {
+  const b = fs.readFileSync(dosya);
+  if (b.readUInt32BE(0) !== 0x89504e47) throw new Error('PNG degil: ' + dosya);
+  let o = 8, W = 0, H = 0, kanal = 0;
+  const idat = [];
+  while (o < b.length) {
+    const uz = b.readUInt32BE(o);
+    const tip = b.toString('ascii', o + 4, o + 8);
+    const veri = b.slice(o + 8, o + 8 + uz);
+    if (tip === 'IHDR') {
+      W = veri.readUInt32BE(0);
+      H = veri.readUInt32BE(4);
+      if (veri[8] !== 8) throw new Error('yalniz 8 bit derinlik destekleniyor');
+      if (veri[12] !== 0) throw new Error('aralikli (interlaced) PNG desteklenmiyor');
+      const renkTipi = veri[9];
+      kanal = renkTipi === 6 ? 4 : renkTipi === 2 ? 3 : renkTipi === 0 ? 1 : 0;
+      if (!kanal) throw new Error('desteklenmeyen renk tipi: ' + renkTipi);
+    } else if (tip === 'IDAT') idat.push(veri);
+    else if (tip === 'IEND') break;
+    o += 12 + uz;
   }
-
-  const parca = (tip, veri) => {
-    const uz = Buffer.alloc(4);
-    uz.writeUInt32BE(veri.length);
-    const govde = Buffer.concat([Buffer.from(tip, 'ascii'), veri]);
-    const crc = Buffer.alloc(4);
-    crc.writeUInt32BE(crc32(govde) >>> 0);
-    return Buffer.concat([uz, govde, crc]);
-  };
-
-  const ihdr = Buffer.alloc(13);
-  ihdr.writeUInt32BE(genislik, 0);
-  ihdr.writeUInt32BE(yukseklik, 4);
-  ihdr[8] = 8;   // bit derinliği
-  ihdr[9] = 6;   // renk tipi: RGBA
-  ihdr[10] = 0; ihdr[11] = 0; ihdr[12] = 0;
-
-  const png = Buffer.concat([
-    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
-    parca('IHDR', ihdr),
-    parca('IDAT', zlib.deflateSync(ham, { level: 9 })),
-    parca('IEND', Buffer.alloc(0)),
-  ]);
-
-  fs.mkdirSync(path.dirname(hedef), { recursive: true });
-  fs.writeFileSync(hedef, png);
-  return png.length;
+  const ham = zlib.inflateSync(Buffer.concat(idat));
+  const satir = W * kanal;
+  const px = Buffer.alloc(W * H * kanal);
+  let onceki = Buffer.alloc(satir);
+  for (let y = 0; y < H; y++) {
+    const f = ham[y * (satir + 1)];
+    const s = ham.slice(y * (satir + 1) + 1, y * (satir + 1) + 1 + satir);
+    const c = Buffer.alloc(satir);
+    for (let i = 0; i < satir; i++) {
+      const a = i >= kanal ? c[i - kanal] : 0;
+      const bb = onceki[i];
+      const cc = i >= kanal ? onceki[i - kanal] : 0;
+      let v;
+      if (f === 0) v = s[i];
+      else if (f === 1) v = s[i] + a;
+      else if (f === 2) v = s[i] + bb;
+      else if (f === 3) v = s[i] + ((a + bb) >> 1);
+      else if (f === 4) {
+        const p = a + bb - cc;
+        const pa = Math.abs(p - a), pb = Math.abs(p - bb), pc = Math.abs(p - cc);
+        v = s[i] + (pa <= pb && pa <= pc ? a : pb <= pc ? bb : cc);
+      } else throw new Error('bilinmeyen filtre: ' + f);
+      c[i] = v & 0xff;
+    }
+    c.copy(px, y * satir);
+    onceki = c;
+  }
+  return { W, H, kanal, px };
 }
 
+/* Logo -> kapsama haritasi (0 = bos, 1 = isaret). Koyu piksel = isaret. */
+function kapsama(img) {
+  const { W, H, kanal, px } = img;
+  const k = new Float32Array(W * H);
+  for (let i = 0; i < W * H; i++) {
+    const o = i * kanal;
+    const r = px[o];
+    const g = kanal >= 3 ? px[o + 1] : r;
+    const b = kanal >= 3 ? px[o + 2] : r;
+    const a = kanal === 4 ? px[o + 3] / 255 : 1;
+    const isik = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+    k[i] = (1 - isik) * a;
+  }
+  return k;
+}
+
+/* Alan ortalamasiyla kucult — kucultmede en dogru yontem budur.
+   Bicubic gibi yontemler buyutmede iyidir; kucultmede alan
+   ortalamasi hem daha keskin hem daha az takma desen uretir. */
+function kucult(kap, W, H, yeniW, yeniH) {
+  const c = new Float32Array(yeniW * yeniH);
+  for (let y = 0; y < yeniH; y++) {
+    const y0 = (y * H) / yeniH, y1 = ((y + 1) * H) / yeniH;
+    for (let x = 0; x < yeniW; x++) {
+      const x0 = (x * W) / yeniW, x1 = ((x + 1) * W) / yeniW;
+      let top = 0, agirlik = 0;
+      for (let sy = Math.floor(y0); sy < Math.ceil(y1); sy++) {
+        const ay = Math.min(y1, sy + 1) - Math.max(y0, sy);
+        for (let sx = Math.floor(x0); sx < Math.ceil(x1); sx++) {
+          const ax = Math.min(x1, sx + 1) - Math.max(x0, sx);
+          const alan = ay * ax;
+          top += kap[sy * W + sx] * alan;
+          agirlik += alan;
+        }
+      }
+      c[y * yeniW + x] = agirlik ? top / agirlik : 0;
+    }
+  }
+  return c;
+}
+
+/* Yuvarlatilmis kare kapsamasi — kenar yumusatma icin 4x4 ornekleme */
+function karoKapsama(N, r) {
+  const k = new Float32Array(N * N);
+  const icerde = (x, y) =>
+    (x >= r || y >= r || (x - r) ** 2 + (y - r) ** 2 <= r * r) &&
+    (x <= N - r || y >= r || (x - (N - r)) ** 2 + (y - r) ** 2 <= r * r) &&
+    (x >= r || y <= N - r || (x - r) ** 2 + (y - (N - r)) ** 2 <= r * r) &&
+    (x <= N - r || y <= N - r || (x - (N - r)) ** 2 + (y - (N - r)) ** 2 <= r * r);
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < N; x++) {
+      let s = 0;
+      for (let j = 0; j < 4; j++) {
+        for (let i = 0; i < 4; i++) if (icerde(x + (i + 0.5) / 4, y + (j + 0.5) / 4)) s++;
+      }
+      k[y * N + x] = s / 16;
+    }
+  }
+  return k;
+}
+
+/* ---------- PNG yazici ---------- */
 let crcTablo = null;
 function crc32(buf) {
   if (!crcTablo) {
@@ -60,111 +184,99 @@ function crc32(buf) {
   for (let i = 0; i < buf.length; i++) c = crcTablo[(c ^ buf[i]) & 0xff] ^ (c >>> 8);
   return c ^ -1;
 }
-
-// --- ikon deseni ---
-// Koyu yuvarlatilmis kare zemin + kalin beyaz "D" monogrami (DeightShot).
-//
-// NEDEN BOYLE (31 Agu 2026, uc tur render edilip GOZLE bakilarak secildi):
-//
-// * ESKI DESEN ELENDI. Once dort koseye "secim cercevesi" ayraclari vardi.
-//   Fikir iyiydi ama 16 pikselde ayraclar birlesip duz bir halkaya donuyor —
-//   "secim" fikri tamamen kayboluyor. Kagitta iyi, tepside anlamsiz.
-//
-// * D'NIN ORANI KRITIK. Ilk denemede D kare bir kutuya cizildi; ic bosluk
-//   yatay bir kamaya donustu ve ikon 16 pikselde "D" degil "oynat (play)"
-//   gibi okundu. Gercek bir D boyundan DARDIR — en=0.78 orani bunu duzeltti.
-//
-// * DAHA KALIN DENENDI, ELENDI (tk=0.19): ic bosluk 16 pikselde kapaniyor,
-//   harf lekeye donuyor.
-//
-// * CAMGOBEGI "TARAMA CIZGISI" DENENDI, ELENDI: dikkat cekiyor ama cizgi
-//   harfin uzerinden gecip D'yi bozuyor.
-//
-// * D ICINE METIN SATIRLARI DENENDI, ELENDI: 16 pikselde D'nin ic bosluu
-//   ~2 piksel; iki satir oraya sigmiyor, gurultuye donuyor.
-//
-// Iki renk yeterli: opak koyu zemin sayesinde ikon hem acik hem koyu
-// Windows tepsisinde ayni kontrastla duruyor. Vurgu rengi eklenmedi —
-// anlam renge bagimli olmamali.
-function ikon(N) {
-  const rk = 0.22;                                  // zemin kose yuvarlakligi
-  const ustpay = 0.12, en = 0.78, tk = 0.16;        // D: pay, genislik orani, kalinlik
-
-  const y0 = Math.round(N * ustpay), y1 = N - 1 - y0;
-  const h = y1 - y0, w = Math.round(h * en);
-  const x0 = Math.round((N - w) / 2), x1 = x0 + w;
-  const t = Math.max(2, Math.round(N * tk));
-  const cx = x0 + t, cy = (y0 + y1) / 2;
-  const rx = x1 - cx, ry = h / 2;
-  const rx2 = rx - t, ry2 = ry - t;
-
-  return (x, y) => {
-    // yuvarlatilmis kare zemin
-    const r = Math.round(N * rk);
-    const icerde =
-      (x >= r || y >= r || (x - r) ** 2 + (y - r) ** 2 <= r * r) &&
-      (x <= N - 1 - r || y >= r || (x - (N - 1 - r)) ** 2 + (y - r) ** 2 <= r * r) &&
-      (x >= r || y <= N - 1 - r || (x - r) ** 2 + (y - (N - 1 - r)) ** 2 <= r * r) &&
-      (x <= N - 1 - r || y <= N - 1 - r || (x - (N - 1 - r)) ** 2 + (y - (N - 1 - r)) ** 2 <= r * r);
-    if (!icerde) return [0, 0, 0, 0];
-
-    // D govdesi: sol dik kol + sag yarim kavis, ic bosluk ayni orani korur
-    const govde = x >= x0 && x <= x1 && y >= y0 && y <= y1 &&
-      (x < cx || ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1);
-    const bosluk = x >= cx && rx2 > 0 && ry2 > 0 &&
-      ((x - cx) / rx2) ** 2 + ((y - cy) / ry2) ** 2 <= 1;
-
-    if (govde && !bosluk) return [245, 245, 245, 255];
-    return [24, 24, 27, 235];
+function pngYaz(N, pikselFn) {
+  const satirBoyu = N * 4 + 1;
+  const ham = Buffer.alloc(satirBoyu * N);
+  for (let y = 0; y < N; y++) {
+    ham[y * satirBoyu] = 0;
+    for (let x = 0; x < N; x++) {
+      const [r, g, b, a] = pikselFn(x, y);
+      const o = y * satirBoyu + 1 + x * 4;
+      ham[o] = r; ham[o + 1] = g; ham[o + 2] = b; ham[o + 3] = a;
+    }
+  }
+  const parca = (tip, veri) => {
+    const uz = Buffer.alloc(4);
+    uz.writeUInt32BE(veri.length);
+    const govde = Buffer.concat([Buffer.from(tip, 'ascii'), veri]);
+    const crc = Buffer.alloc(4);
+    crc.writeUInt32BE(crc32(govde) >>> 0);
+    return Buffer.concat([uz, govde, crc]);
   };
+  const ihdr = Buffer.alloc(13);
+  ihdr.writeUInt32BE(N, 0);
+  ihdr.writeUInt32BE(N, 4);
+  ihdr[8] = 8;
+  ihdr[9] = 6;
+  return Buffer.concat([
+    Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    parca('IHDR', ihdr),
+    parca('IDAT', zlib.deflateSync(ham, { level: 9 })),
+    parca('IEND', Buffer.alloc(0)),
+  ]);
 }
 
-// --- ICO üretici ---
-// electron-builder uygulama ikonu için .ico istiyor (256x256 dahil).
-// Windows modern ICO'da PNG gömülü girdileri destekliyor, o yüzden aynı
-// PNG üreticisini kullanıp tek kapsayıcıda topluyoruz.
-function icoYaz(boyutlar, hedef) {
-  const pngler = boyutlar.map((N) => {
-    const gecici = path.join(require('os').tmpdir(), `deightshot-ico-${N}.png`);
-    pngYaz(N, N, ikon(N), gecici);
-    const veri = fs.readFileSync(gecici);
-    fs.unlinkSync(gecici);
-    return { N, veri };
+/* ---------- tek boyut uret ---------- */
+function ikonUret(kap, W, H, N) {
+  const { pay, en, kose } = AYAR[N];
+  const ic = N - 2 * pay;
+  const hedefH = ic;
+  const hedefW = Math.max(1, Math.round(ic * en));
+  const kucuk = kucult(kap, W, H, hedefW, hedefH);
+  const ox = Math.round((N - hedefW) / 2);
+  const oy = Math.round((N - hedefH) / 2);
+  const karo = karoKapsama(N, N * kose);
+  return pngYaz(N, (x, y) => {
+    const kk = karo[y * N + x];
+    if (kk <= 0) return [0, 0, 0, 0];
+    const mx = x - ox, my = y - oy;
+    const m = (mx >= 0 && my >= 0 && mx < hedefW && my < hedefH) ? kucuk[my * hedefW + mx] : 0;
+    const r = Math.round(ZEMIN[0] * (1 - m) + ISARET[0] * m);
+    const g = Math.round(ZEMIN[1] * (1 - m) + ISARET[1] * m);
+    const b = Math.round(ZEMIN[2] * (1 - m) + ISARET[2] * m);
+    return [r, g, b, Math.round(kk * 255)];
   });
+}
 
+/* ---------- ICO paketleyici ----------
+   Windows modern ICO'da PNG gomulu girdileri destekliyor, o yuzden
+   ayni PNG ureticisi kullanilip tek kapsayicida toplaniyor. */
+function icoYaz(pngler, hedef) {
   const baslik = Buffer.alloc(6);
-  baslik.writeUInt16LE(0, 0);              // ayrılmış
-  baslik.writeUInt16LE(1, 2);              // tip: 1 = ikon
-  baslik.writeUInt16LE(pngler.length, 4);  // girdi sayısı
-
+  baslik.writeUInt16LE(0, 0);
+  baslik.writeUInt16LE(1, 2);
+  baslik.writeUInt16LE(pngler.length, 4);
   const girdiler = Buffer.alloc(16 * pngler.length);
   let ofset = 6 + girdiler.length;
-
   pngler.forEach((p, i) => {
     const o = i * 16;
-    girdiler[o] = p.N >= 256 ? 0 : p.N;      // 256 -> 0 olarak yazılır
+    girdiler[o] = p.N >= 256 ? 0 : p.N;        // 256 -> 0 olarak yazilir
     girdiler[o + 1] = p.N >= 256 ? 0 : p.N;
-    girdiler[o + 2] = 0;                      // palet yok
-    girdiler[o + 3] = 0;                      // ayrılmış
-    girdiler.writeUInt16LE(1, o + 4);         // düzlem
-    girdiler.writeUInt16LE(32, o + 6);        // bit derinliği
+    girdiler.writeUInt16LE(1, o + 4);
+    girdiler.writeUInt16LE(32, o + 6);
     girdiler.writeUInt32LE(p.veri.length, o + 8);
     girdiler.writeUInt32LE(ofset, o + 12);
     ofset += p.veri.length;
   });
-
   const ico = Buffer.concat([baslik, girdiler, ...pngler.map((p) => p.veri)]);
-  fs.mkdirSync(path.dirname(hedef), { recursive: true });
   fs.writeFileSync(hedef, ico);
   return ico.length;
 }
 
-for (const N of [16, 32, 64]) {
-  const hedef = path.join(__dirname, '..', 'assets', `tray-${N}.png`);
-  const boyut = pngYaz(N, N, ikon(N), hedef);
-  console.log(`yazıldı: assets/tray-${N}.png (${boyut} bayt)`);
+/* ---------- calistir ---------- */
+if (!fs.existsSync(KAYNAK)) {
+  console.error('✗ kaynak logo bulunamadi:', KAYNAK);
+  process.exit(2);
 }
+const img = pngOku(KAYNAK);
+const kap = kapsama(img);
+console.log(`kaynak: assets/logo-kaynak.png  ${img.W}x${img.H}`);
 
-const icoYol = path.join(__dirname, '..', 'assets', 'deightshot.ico');
-const icoBoyut = icoYaz([16, 24, 32, 48, 64, 128, 256], icoYol);
-console.log(`yazıldı: assets/deightshot.ico (${icoBoyut} bayt, 7 boyut)`);
+for (const N of TRAY) {
+  const veri = ikonUret(kap, img.W, img.H, N);
+  fs.writeFileSync(path.join(ASSETS, `tray-${N}.png`), veri);
+  console.log(`yazildi: assets/tray-${N}.png (${veri.length} bayt)`);
+}
+const icoParcalari = ICO.map((N) => ({ N, veri: ikonUret(kap, img.W, img.H, N) }));
+const icoBoyut = icoYaz(icoParcalari, path.join(ASSETS, 'deightshot.ico'));
+console.log(`yazildi: assets/deightshot.ico (${icoBoyut} bayt, ${ICO.length} boyut)`);
