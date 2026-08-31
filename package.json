@@ -1,7 +1,7 @@
 {
   "name": "deightshot",
   "productName": "DeightShot",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Ekran görüntüsü aracı: OCR ile metin seçme, mozaik/blur, basılı tut = tam ekran",
   "main": "main.js",
   "private": true,
