@@ -86,6 +86,27 @@ ayrıca arayüzü hiç kilitlemiyor.
 Çekirdek (yakalama/overlay/çizim) `src/main/` altında; sonradan gelen
 yetenekler `modules/<klasör>/` altında eklenti olarak durur.
 
+## Depo düzeni
+
+```
+src/main/      çekirdek: yakalama, overlay, kısayol, tepsi, ayarlar
+src/ui/        arayüz: overlay ve ayar penceresi (HTML/CSS/JS)
+src/preload/   renderer ile ana süreç arasındaki köprü
+modules/       eklentiler — OCR metin seçme, çeviri (bkz modules/README.md)
+native/        C# yardımcı süreci: WGC yakalama, OCR, klavye hook'u
+assets/        tepsi ikonları ve uygulama ikonu (kodla üretiliyor)
+tools/         geliştirme ve ölçüm araçları — ürünün parçası DEĞİL
+spike/         mimariyi doğrulamak için yazılmış deneme kodu, referans
+```
+
+`tools/` ve `spike/` uygulamanın çalışması için gerekli değil. Depoda
+duruyorlar çünkü çoğu bir kararın kanıtı: WGC'nin mi BitBlt'in mi
+kullanılacağı, hangi OCR ölçeğinin işe yaradığı, kısayolun neden native
+hook'la yakalandığı — hepsi buradaki ölçümlerle karara bağlandı.
+
+⛔ `tools/gorsel-test.js` **gerçek ekranı yakalar ve sentetik tuş basar.**
+Merakla çalıştırma; ayrıntı `tools/README.md` içinde.
+
 ## Durum
 
 Günlük kullanımda. Bilinen eksikler:

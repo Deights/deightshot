@@ -1,3 +1,18 @@
+// ⛔⛔ DİKKAT — BU ARAÇ GERÇEK EKRANINI YAKALAR VE SENTETİK TUŞ BASAR ⛔⛔
+//
+// Merakla çalıştırma. Bu betik:
+//   1. Klavyeye SENTETİK tuş gönderir (uiohook ile) — odaktaki pencere
+//      ne ise ona gider,
+//   2. EKRANIN O ANKİ HÂLİNİ yakalayıp %TEMP% altına PNG olarak yazar.
+//
+// Yani o an ekranında ne varsa diske düşer: açık sekmeler, mesajlar,
+// şifre yöneticisi, hepsi. Bir kez gerçekten yaşandı — özel içerik
+// kazara kaydedildi.
+//
+// Çalıştırmadan önce: ekranında görülmesini istemediğin hiçbir şey
+// olmadığından emin ol. Diğer test araçları (tools/ içindekilerin geri
+// kalanı) ekran yakalamaz; ayrıntı için tools/README.md.
+//
 // DeightShot overlay'ini gerçek tuşlarla tetikle, ekranı yakala, sonra kapat.
 // Amaç: araç çubuğunu gözle doğrulamak.
 //
