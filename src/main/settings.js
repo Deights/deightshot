@@ -100,6 +100,15 @@ let dosya = null;
    Eski urun adi bilincli olarak sabit yazildi; tarihsel bir degerdir. */
 function eskiAyarlariTasi(hedef) {
   try {
+    /* ⚠️ Yalnizca GERCEK uygulamada calis.
+       Olculdu (31 Agu 2026): `npx electron tools/yukleme-testi.js` ile
+       kosulunca Electron'un uygulama adi "Electron" oluyor ve userData
+       %APPDATA%\Electron'a dusuyor. Guard olmadan gec oraya da tetikleniyor
+       ve kullanicinin GERCEK ayarlarini (icinde API anahtari olabilir)
+       alakasiz bir klasore kopyaliyordu. Yukleme testi bunu yakaladi:
+       varsayilanlari bekliyordu, gercek ayarlari buldu. */
+    if (String(app.getName()).toLowerCase() !== 'deightshot') return;
+
     if (fs.existsSync(hedef)) return;              // yeni ayar zaten var
     const eski = path.join(app.getPath('appData'), 'shot88', 'ayarlar.json');
     if (!fs.existsSync(eski)) return;              // gececek bir sey yok
