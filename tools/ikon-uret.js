@@ -62,30 +62,59 @@ function crc32(buf) {
 }
 
 // --- ikon deseni ---
-// Koyu zemin üstünde beyaz köşe ayraçları — "bölge seçimi" fikri.
+// Koyu yuvarlatilmis kare zemin + kalin beyaz "D" monogrami (DeightShot).
+//
+// NEDEN BOYLE (31 Agu 2026, uc tur render edilip GOZLE bakilarak secildi):
+//
+// * ESKI DESEN ELENDI. Once dort koseye "secim cercevesi" ayraclari vardi.
+//   Fikir iyiydi ama 16 pikselde ayraclar birlesip duz bir halkaya donuyor —
+//   "secim" fikri tamamen kayboluyor. Kagitta iyi, tepside anlamsiz.
+//
+// * D'NIN ORANI KRITIK. Ilk denemede D kare bir kutuya cizildi; ic bosluk
+//   yatay bir kamaya donustu ve ikon 16 pikselde "D" degil "oynat (play)"
+//   gibi okundu. Gercek bir D boyundan DARDIR — en=0.78 orani bunu duzeltti.
+//
+// * DAHA KALIN DENENDI, ELENDI (tk=0.19): ic bosluk 16 pikselde kapaniyor,
+//   harf lekeye donuyor.
+//
+// * CAMGOBEGI "TARAMA CIZGISI" DENENDI, ELENDI: dikkat cekiyor ama cizgi
+//   harfin uzerinden gecip D'yi bozuyor.
+//
+// * D ICINE METIN SATIRLARI DENENDI, ELENDI: 16 pikselde D'nin ic bosluu
+//   ~2 piksel; iki satir oraya sigmiyor, gurultuye donuyor.
+//
+// Iki renk yeterli: opak koyu zemin sayesinde ikon hem acik hem koyu
+// Windows tepsisinde ayni kontrastla duruyor. Vurgu rengi eklenmedi —
+// anlam renge bagimli olmamali.
 function ikon(N) {
-  const kenar = Math.max(2, Math.round(N * 0.09));   // köşe kolu kalınlığı
-  const kol = Math.round(N * 0.30);                  // köşe kolu uzunluğu
-  const pay = Math.round(N * 0.16);                  // dıştan boşluk
+  const rk = 0.22;                                  // zemin kose yuvarlakligi
+  const ustpay = 0.12, en = 0.78, tk = 0.16;        // D: pay, genislik orani, kalinlik
+
+  const y0 = Math.round(N * ustpay), y1 = N - 1 - y0;
+  const h = y1 - y0, w = Math.round(h * en);
+  const x0 = Math.round((N - w) / 2), x1 = x0 + w;
+  const t = Math.max(2, Math.round(N * tk));
+  const cx = x0 + t, cy = (y0 + y1) / 2;
+  const rx = x1 - cx, ry = h / 2;
+  const rx2 = rx - t, ry2 = ry - t;
 
   return (x, y) => {
-    // hafif yuvarlatılmış koyu zemin
-    const r = Math.round(N * 0.22);
-    const içerde =
+    // yuvarlatilmis kare zemin
+    const r = Math.round(N * rk);
+    const icerde =
       (x >= r || y >= r || (x - r) ** 2 + (y - r) ** 2 <= r * r) &&
       (x <= N - 1 - r || y >= r || (x - (N - 1 - r)) ** 2 + (y - r) ** 2 <= r * r) &&
       (x >= r || y <= N - 1 - r || (x - r) ** 2 + (y - (N - 1 - r)) ** 2 <= r * r) &&
       (x <= N - 1 - r || y <= N - 1 - r || (x - (N - 1 - r)) ** 2 + (y - (N - 1 - r)) ** 2 <= r * r);
+    if (!icerde) return [0, 0, 0, 0];
 
-    if (!içerde) return [0, 0, 0, 0];
+    // D govdesi: sol dik kol + sag yarim kavis, ic bosluk ayni orani korur
+    const govde = x >= x0 && x <= x1 && y >= y0 && y <= y1 &&
+      (x < cx || ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1);
+    const bosluk = x >= cx && rx2 > 0 && ry2 > 0 &&
+      ((x - cx) / rx2) ** 2 + ((y - cy) / ry2) ** 2 <= 1;
 
-    const a = pay, b = N - 1 - pay;
-    const yatay = (y < a + kenar && y >= a) || (y > b - kenar && y <= b);
-    const dikey = (x < a + kenar && x >= a) || (x > b - kenar && x <= b);
-    const köşeYatay = yatay && ((x >= a && x < a + kol) || (x <= b && x > b - kol));
-    const köşeDikey = dikey && ((y >= a && y < a + kol) || (y <= b && y > b - kol));
-
-    if (köşeYatay || köşeDikey) return [245, 245, 245, 255];
+    if (govde && !bosluk) return [245, 245, 245, 255];
     return [24, 24, 27, 235];
   };
 }
