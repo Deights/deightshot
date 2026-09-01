@@ -1,123 +1,135 @@
 # DeightShot
 
-**Windows için ekran görüntüsü aracı.** Lightshot'ın yaptığını yapar, üstüne
-ekrandaki **metni seçilebilir hâle getirir** (OCR), **mozaik/blur** ile
-gizler ve tuşu **basılı tutunca** tam ekranı alır.
+*[Türkçe](README.tr.md)*
 
-> *A Windows screenshot tool with built-in OCR text selection, blur/pixelate,
-> and hold-to-fullscreen. Fully offline by default — zero telemetry.*
+**A screenshot tool for Windows.** It does what Lightshot does, and then makes
+the text on your screen **selectable** (OCR), hides things with **pixelate /
+blur**, and grabs the whole screen when you **hold** the key.
+
+Fully offline by default — **zero telemetry**.
 
 ---
 
-## Ne yapar
+## What it does
 
 | | |
 |---|---|
-| **Bölge seçimi** | Sürükle · kenardan boyutlandır · içinden taşı · ok tuşlarıyla 1 px |
-| **Çizim** | Kalem · ok · çizgi · kutu · daire · vurgulayıcı · metin · **mozaik** · geri al |
-| **Metin seçme (OCR)** | Çift tık → ekrandaki yazı **seçilebilir metne** dönüşür, `Ctrl+C` ile kopyalanır |
-| **Basılı tut = tam ekran** | `Ins`'e kısa bas → bölge seçimi. 700 ms basılı tut → tam ekran |
-| **Çok monitör** | Ekran başına ayrı overlay, DIP↔fiziksel piksel çevrimi |
-| **Çeviri** | Seçilen metni satır içi altyazı olarak çevirir (takılabilir motor) |
+| **Region select** | Drag · resize from edges · move from inside · 1 px nudge with arrow keys |
+| **Annotate** | Pen · arrow · line · box · ellipse · highlighter · text · **pixelate** · undo |
+| **Text selection (OCR)** | Double-click → on-screen text becomes **selectable text**, `Ctrl+C` copies it |
+| **Hold = fullscreen** | Tap `Ins` → region select. Hold it 700 ms → full screen |
+| **Multi-monitor** | One overlay per display, DIP↔physical pixel conversion |
+| **Translation** | Translates selected text as inline subtitles (pluggable engine) |
 
-Kısayol tuşu **yutulur** — `Ins`'e basınca editörde "overtype" modu açılmaz.
+The hotkey is **swallowed** — pressing `Ins` no longer toggles overtype mode in
+whatever editor happens to be focused.
 
-## Gizlilik
+## Privacy
 
-**Sıfır telemetri.** Uygulama kendiliğinden hiçbir ağ isteği yapmaz.
+**Zero telemetry.** The app makes no network requests on its own.
 
-Tek istisna: kullanıcı Ayarlar'dan uzak çeviri motorunu **açıkça açar** ve
-kendi API anahtarını girerse. Kapalıyken ekran metni makineden çıkmaz —
-yerel motor (Ollama) çalışmıyor olsa bile dışarı gönderilmez, hata verir.
+The only exception: when the user **explicitly enables** the remote translation
+engine in Settings and enters their own API key. While it is off, screen text
+never leaves the machine — not even as a fallback when the local engine
+(Ollama) is unavailable. It reports an error instead of sending anything out.
 
-## Gereksinimler
+## Requirements
 
-- Windows 10 20H2+ / Windows 11 (Windows Graphics Capture ve Windows.Media.Ocr için)
+- Windows 10 20H2+ / Windows 11 (for Windows Graphics Capture and Windows.Media.Ocr)
 - Node.js 18+
-- .NET SDK 10 (yalnızca yerel yardımcıyı derlemek için)
+- .NET SDK 10 (only to build the native helper)
 
-Ek OCR dilleri Windows'un kendi dil paketlerinden gelir; Tesseract kullanılmaz.
+Additional OCR languages come from Windows' own language packs. Tesseract is
+not used.
 
-## Çalıştırma
+## Running from source
 
 ```bash
 npm install
-npm run native:build     # C# yardımcı süreci
+npm run native:build     # the C# helper process
 npm start
 ```
 
-> ⚠️ VS Code terminalinde `ELECTRON_RUN_AS_NODE=1` tanımlı olabilir. Bu değişken
-> varken Electron kendini düz Node sanır ve `require('electron')` API yerine
-> dosya yolu döner. Başlatmadan önce temizle.
+> ⚠️ A VS Code terminal may define `ELECTRON_RUN_AS_NODE=1`. With that variable
+> set, Electron thinks it is plain Node and `require('electron')` returns a file
+> path instead of the API. Clear it before starting.
 
-## Paketleme
+## Packaging
 
 ```bash
-npm run native:publish   # self-contained C# yardımcısı -> dist-native/
-npm run paket            # -> dist/deightshot-kurulum-<sürüm>.exe
+npm run native:publish   # self-contained C# helper -> dist-native/
+npm run paket            # -> dist/deightshot-kurulum-<version>.exe
 ```
 
-Kurulum dosyası imzasız olduğu için Windows Smart App Control açıksa
-engellenebilir. Kurulum gerektirmeyen taşınabilir sürüm:
+The installer is unsigned, so Windows Smart App Control may block it if enabled.
+A portable build that needs no installation:
 
 ```bash
 npm run paket:dizin      # -> dist/win-unpacked/
 ```
 
-Klasörü olduğu gibi kopyalayıp `DeightShot.exe`'yi çalıştırmak yeterli —
-kurulum yok, yönetici yetkisi gerekmiyor.
+Copy that folder anywhere and run `DeightShot.exe` — no install, no admin
+rights required.
 
-## Mimari
+> ⚠️ **Unsigned binaries and Smart App Control.** Measured, not assumed: Smart
+> App Control blocks both the installer *and* the portable executable. It is not
+> about how the app is delivered, it is about the missing signature. SAC is only
+> on by default on clean Windows 11 installs; machines upgraded from Windows 10
+> generally have it off.
+
+## Architecture
 
 ```
-Electron (arayüz, overlay, çizim)
-   │  satır-JSON, stdin/stdout
+Electron (UI, overlay, drawing)
+   │  line-delimited JSON over stdin/stdout
    ▼
 deightshot-native.exe  (C# / .NET)
-   ├─ Windows Graphics Capture   yakalama (BitBlt değil — oyunlarda da çalışır)
-   ├─ Windows.Media.Ocr          metin tanıma, offline
-   └─ WH_KEYBOARD_LL             kısayol; tuşu yutar
+   ├─ Windows Graphics Capture   capture (not BitBlt — works in games too)
+   ├─ Windows.Media.Ocr          text recognition, offline
+   └─ WH_KEYBOARD_LL             hotkey; swallows the key
 ```
 
-İki API C#'ta birinci sınıf olduğu için ayrı süreç tercih edildi: NodeRT
-bakımsız, C++ addon her Electron sürümünde yeniden derleme demek. Ayrı süreç
-ayrıca arayüzü hiç kilitlemiyor.
+A separate process was chosen because both APIs are first-class in C#: NodeRT is
+unmaintained, and a C++ addon would mean recompiling for every Electron release.
+The separate process also keeps the UI from ever blocking.
 
-Çekirdek (yakalama/overlay/çizim) `src/main/` altında; sonradan gelen
-yetenekler `modules/<klasör>/` altında eklenti olarak durur.
+The core (capture / overlay / drawing) lives in `src/main/`; capabilities added
+later live in `modules/<name>/` as plugins.
 
-## Depo düzeni
+## Repository layout
 
 ```
-src/main/      çekirdek: yakalama, overlay, kısayol, tepsi, ayarlar
-src/ui/        arayüz: overlay ve ayar penceresi (HTML/CSS/JS)
-src/preload/   renderer ile ana süreç arasındaki köprü
-modules/       eklentiler — OCR metin seçme, çeviri (bkz modules/README.md)
-native/        C# yardımcı süreci: WGC yakalama, OCR, klavye hook'u
-assets/        tepsi ikonları ve uygulama ikonu (kodla üretiliyor)
-tools/         geliştirme ve ölçüm araçları — ürünün parçası DEĞİL
-spike/         mimariyi doğrulamak için yazılmış deneme kodu, referans
+src/main/      core: capture, overlay, hotkey, tray, settings
+src/ui/        UI: overlay and settings window (HTML/CSS/JS)
+src/preload/   bridge between renderer and main process
+modules/       plugins — OCR text selection, translation (see modules/README.md)
+native/        C# helper process: WGC capture, OCR, keyboard hook
+assets/        tray icons and app icon (generated from assets/logo-kaynak.png)
+tools/         development and measurement tools — NOT part of the product
+spike/         throwaway code written to validate the architecture, kept as reference
 ```
 
-`tools/` ve `spike/` uygulamanın çalışması için gerekli değil. Depoda
-duruyorlar çünkü çoğu bir kararın kanıtı: WGC'nin mi BitBlt'in mi
-kullanılacağı, hangi OCR ölçeğinin işe yaradığı, kısayolun neden native
-hook'la yakalandığı — hepsi buradaki ölçümlerle karara bağlandı.
+`tools/` and `spike/` are not needed to run the app. They are in the repository
+because most of them are the evidence behind a decision: whether to use WGC or
+BitBlt, which OCR upscale factor actually helps, why the hotkey is captured with
+a native hook — each was settled by a measurement that lives here.
 
-⛔ `tools/gorsel-test.js` **gerçek ekranı yakalar ve sentetik tuş basar.**
-Merakla çalıştırma; ayrıntı `tools/README.md` içinde.
+⛔ `tools/gorsel-test.js` **captures the real screen and injects synthetic
+keystrokes.** Do not run it out of curiosity; details in `tools/README.md`.
 
-## Durum
+> Note: the source comments and the tool scripts are written in Turkish.
 
-Günlük kullanımda. Bilinen eksikler:
+## Status
 
-- Son çekilen görüntülerin geçmişi yok
-- Altyazı, kopyalanan/kaydedilen görüntüye girmiyor (ayrı DOM katmanı)
-- Overlay açıkken tekrar `Ins`'e basmanın davranışı belirlenmedi
-- Vurgulayıcı üst üste binince koyulaşıyor
+In daily use. Known gaps:
 
-## Lisans
+- No history of recently captured images
+- Subtitles are not baked into the copied/saved image (separate DOM layer)
+- Pressing `Ins` again while the overlay is open has no defined behaviour
+- Overlapping highlighter strokes darken each other
 
-**Lisans yok.** Kaynak kod görünür durumda ama kullanım, değiştirme veya
-dağıtım için izin verilmemiştir; tüm hakları saklıdır. Bu bilinçli bir
-tercih — lisans sonradan eklenebilir, geri alınamaz.
+## License
+
+**No license.** The source is visible, but no permission is granted to use,
+modify or distribute it; all rights reserved. This is deliberate — a license can
+be added later, it cannot be taken back.
